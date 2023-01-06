@@ -6,8 +6,6 @@
 #include "camera.h" 
 #include "material.h"
 #include "object3d.h"
-#include "group.h" 
-#include "sphere.h"
 
 #define DegreesToRadians(x) ((M_PI * x) / 180.0f)
 
