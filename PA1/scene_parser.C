@@ -3,7 +3,7 @@
 
 #include "scene_parser.h"
 #include "matrix.h"
-#include "camera.h" 
+#include "camera.h"
 #include "material.h"
 #include "object3d.h"
 
@@ -30,14 +30,14 @@ SceneParser::SceneParser(const char* filename) {
   file = fopen(filename,"r");
   assert (file != NULL);
   parseFile();
-  fclose(file); 
+  fclose(file);
   file = NULL;
 }
 
 SceneParser::~SceneParser() {
-  if (group != NULL) 
+  if (group != NULL)
     delete group;
-  if (camera != NULL) 
+  if (camera != NULL)
     delete camera;
    int i;
    for (i = 0; i < num_materials; i++) {
@@ -50,12 +50,12 @@ SceneParser::~SceneParser() {
 
 void SceneParser::parseFile() {
   //
-  // at the top level, the scene can have a camera, 
+  // at the top level, the scene can have a camera,
   // background color and a group of objects
   // (we add lights and other things in future assignments)
   //
-  char token[MAX_PARSER_TOKEN_LENGTH];    
-  while (getToken(token)) { 
+  char token[MAX_PARSER_TOKEN_LENGTH];
+  while (getToken(token)) {
     if (!strcmp(token, "OrthographicCamera")) {
       parseOrthographicCamera();
     } else if (!strcmp(token, "Background")) {
@@ -93,11 +93,11 @@ void SceneParser::parseOrthographicCamera() {
 void SceneParser::parseBackground() {
   char token[MAX_PARSER_TOKEN_LENGTH];
   // read in the background color
-  getToken(token); assert (!strcmp(token, "{"));  
+  getToken(token); assert (!strcmp(token, "{"));
   while (1) {
-    getToken(token); 
-    if (!strcmp(token, "}")) { 
-      break;  
+    getToken(token);
+    if (!strcmp(token, "}")) {
+      break;
     } else if (!strcmp(token, "color")) {
       background_color = readVec3f();
     } else {
@@ -116,29 +116,29 @@ void SceneParser::parseMaterials() {
   // read in the number of objects
   getToken(token); assert (!strcmp(token, "numMaterials"));
   num_materials = readInt();
-  materials = new Material*;
+  materials = new Material *[num_materials];
 
   // read in the objects
   int count = 0;
   while (num_materials > count) {
-    getToken(token); 
+    getToken(token);
     if (!strcmp(token, "PhongMaterial")) {
       materials[count] = parseMaterial();
     } else {
-      printf ("Unknown token in parseMaterial: '%s'\n", token); 
+      printf ("Unknown token in parseMaterial: '%s'\n", token);
       exit(0);
     }
     count++;
   }
   getToken(token); assert (!strcmp(token, "}"));
-}  
+}
 
 Material* SceneParser::parseMaterial() {
   char token[MAX_PARSER_TOKEN_LENGTH];
   Vec3f diffuseColor(1,1,1);
   getToken(token); assert (!strcmp(token, "{"));
   while (1) {
-    getToken(token); 
+    getToken(token);
     if (!strcmp(token, "diffuseColor")) {
       diffuseColor = readVec3f();
     } else {
@@ -155,9 +155,9 @@ Material* SceneParser::parseMaterial() {
 
 Object3D* SceneParser::parseObject(char token[MAX_PARSER_TOKEN_LENGTH]) {
   Object3D *answer = NULL;
-  if (!strcmp(token, "Group")) {      
+  if (!strcmp(token, "Group")) {
     answer = (Object3D*)parseGroup();
-  } else if (!strcmp(token, "Sphere")) {      
+  } else if (!strcmp(token, "Sphere")) {
     answer = (Object3D*)parseSphere();
   } else {
     printf ("Unknown token in parseObject: '%s'\n", token);
@@ -190,7 +190,7 @@ Group* SceneParser::parseGroup() {
   // read in the objects
   int count = 0;
   while (num_objects > count) {
-    getToken(token); 
+    getToken(token);
     if (!strcmp(token, "MaterialIndex")) {
       // change the current material
       int index = readInt();
@@ -204,7 +204,7 @@ Group* SceneParser::parseGroup() {
     }
   }
   getToken(token); assert (!strcmp(token, "}"));
-  
+
   // return the group
   return answer;
 }

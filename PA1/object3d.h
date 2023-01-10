@@ -8,7 +8,7 @@ class Object3D {
 public:
     Object3D();
 
-    virtual bool intersect(const Ray &r, Hit &h, float min) = 0;
+    virtual bool intersect(const Ray &r, Hit &h, float t_min) = 0;
 
     ~Object3D();
 
@@ -19,7 +19,7 @@ class Sphere : public virtual Object3D {
 public:
     Sphere(Vec3f c, float r, Material *m);
 
-    bool intersect(const Ray &r, Hit &h, float min) override;
+    bool intersect(const Ray &r, Hit &h, float t_min) override;
 
     ~Sphere();
 
@@ -32,7 +32,7 @@ class Group : public virtual Object3D {
 public:
     explicit Group(int num);
 
-    bool intersect(const Ray &r, Hit &h, float min) override;
+    bool intersect(const Ray &r, Hit &h, float t_min) override;
 
     void addObject(int index, Object3D *obj);
 
@@ -40,7 +40,7 @@ public:
 
     int num_objects;
 
-    Object3D *object3D_ptr[1024]{};
+    Object3D **object3D_ptr;
 };
 
 #endif

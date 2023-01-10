@@ -3,6 +3,11 @@
 #include <cassert>
 
 #include "scene_parser.h"
+#include "ray.h"
+#include "camera.h"
+#include "hit.h"
+#include "object3d.h"
+#include "image.h"
 
 int main(int argc, char *argv[]) {
     char *input_file = NULL;
@@ -45,5 +50,25 @@ int main(int argc, char *argv[]) {
         }
     }
 
+
     SceneParser scene_parser(input_file);
+    Camera *camera = scene_parser.getCamera();
+    Group *group = scene_parser.getGroup();
+
+    Image image(width, height);
+    image.SetAllPixels()
+
+    // bottom_left -> (0, 0), upper_right -> (width, height)
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+            float u = i / width;
+            float v = j / height;
+
+            Hit hit;
+            Ray ray = camera->generateRay(Vec2f(u, v));
+            group->intersect(ray, hit, camera->getTMin());
+
+            
+        }
+    }
 }

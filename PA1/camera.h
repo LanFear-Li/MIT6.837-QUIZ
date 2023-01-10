@@ -1,6 +1,8 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
+#include <limits>
+
 #include "ray.h"
 
 class Camera {
@@ -27,6 +29,7 @@ public:
     Vec3f center;
     Vec3f direction;
     Vec3f up;
+    Vec3f horizontal;
     float size;
 };
 
