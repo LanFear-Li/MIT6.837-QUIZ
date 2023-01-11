@@ -23,8 +23,8 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
     // calculate distance from center to ray with dot production
     Vec3f ab = b - a;
     Vec3f ac = c - a;
-    float sine = ab.Dot3(ac) / ab.Length() / ac.Length();
-    float cosine = sqrt(1 - sine * sine);
+    float cosine = ab.Dot3(ac) / ab.Length() / ac.Length();
+    float sine = sqrt(1 - cosine * cosine);
     float dis_to_ray = ac.Length() * sine;
 
     // no intersection
@@ -34,7 +34,7 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
 
     // find max t and check legality
     float unit_length = dir.Length();
-    float t_max = ac.Length() * cosine / unit_length;
+    float t_max = (ac.Length() * cosine + this->radius * 10) / unit_length;
     if (t_min > t_max) {
         return false;
     }
@@ -46,7 +46,7 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
 
         float dis = (p - c).Length();
         if (dis <= rad) {
-            if (t < h.getT()) {
+            if (h.getMaterial() == nullptr || t < h.getT()) {
                 h.set(t, material_ptr, r);
             }
 
@@ -66,13 +66,14 @@ Group::Group(int num) {
 }
 
 bool Group::intersect(const Ray &r, Hit &h, float t_min) {
+    bool intersected = false;
     for (int i = 0; i < num_objects; i++) {
         if (object3D_ptr[i]->intersect(r, h, t_min)) {
-            return true;
+            intersected = true;
         }
     }
 
-    return false;
+    return intersected;
 }
 
 void Group::addObject(int index, Object3D *obj) {
@@ -81,9 +82,9 @@ void Group::addObject(int index, Object3D *obj) {
 }
 
 Group::~Group() {
-    for (int i = 0; i < num_objects; i++) {
+    /*for (int i = 0; i < num_objects; i++) {
         delete object3D_ptr[i];
     }
 
-    delete object3D_ptr;
+    delete object3D_ptr;*/
 }

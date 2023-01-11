@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <cassert>
+#include <algorithm>
 
 #include "scene_parser.h"
 #include "ray.h"
@@ -8,6 +9,14 @@
 #include "hit.h"
 #include "object3d.h"
 #include "image.h"
+#include "material.h"
+
+float f_clamp(float v, float min, float max) {
+    float ans = v;
+    if (ans < min) ans = min;
+    if (ans > max) ans = max;
+    return ans;
+}
 
 int main(int argc, char *argv[]) {
     char *input_file = NULL;
@@ -50,25 +59,41 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
+    // prepare ray caster materials
     SceneParser scene_parser(input_file);
     Camera *camera = scene_parser.getCamera();
     Group *group = scene_parser.getGroup();
 
-    Image image(width, height);
-    image.SetAllPixels()
-
+    // set render_image size and background
+    Image render_image(width, height);
+    Image depth_image(width, height);
+    render_image.SetAllPixels(scene_parser.getBackgroundColor());
     // bottom_left -> (0, 0), upper_right -> (width, height)
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
-            float u = i / width;
-            float v = j / height;
+            float u = i * 1.0f / width;
+            float v = j * 1.0f / height;
 
             Hit hit;
             Ray ray = camera->generateRay(Vec2f(u, v));
             group->intersect(ray, hit, camera->getTMin());
 
-            
+            if (hit.getMaterial() != nullptr) {
+                Vec3f render_color = hit.getMaterial()->getDiffuseColor();
+                render_image.SetPixel(i, j, render_color);
+
+                // cast depth value t into gray color with clamp
+                float t = hit.getT();
+                t = f_clamp(t, depth_min, depth_max);
+                t = 1.0f - (t - depth_min) / (depth_max - depth_min);
+                Vec3f depth_color(t, t, t);
+                depth_image.SetPixel(i, j, depth_color);
+            }
         }
     }
+
+    // save ray caster render_image and depth_image
+    render_image.SaveTGA(output_file);
+    depth_image.SaveTGA(depth_file);
+    return 0;
 }
