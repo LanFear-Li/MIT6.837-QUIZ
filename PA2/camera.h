@@ -42,6 +42,12 @@ public:
     float getTMin() const override;
 
     ~PerspectiveCamera();
+
+    Vec3f center;
+    Vec3f direction;
+    Vec3f up;
+    Vec3f horizontal;
+    Vec3f fov;
 };
 
 #endif

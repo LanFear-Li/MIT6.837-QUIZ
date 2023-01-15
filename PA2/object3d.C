@@ -47,7 +47,9 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
         float dis = (p - c).Length();
         if (dis <= rad) {
             if (h.getMaterial() == nullptr || t < h.getT()) {
-                h.set(t, material_ptr, r);
+                Vec3f normal = p - c;
+                normal.Normalize();
+                h.set(t, material_ptr, p, r);
             }
 
             return true;

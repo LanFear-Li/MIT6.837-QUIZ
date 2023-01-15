@@ -38,8 +38,19 @@ float OrthographicCamera::getTMin() const {
 OrthographicCamera::~OrthographicCamera() = default;
 
 
-PerspectiveCamera::PerspectiveCamera(Vec3f &center, Vec3f &direction, Vec3f &up, float angle) {
+PerspectiveCamera::PerspectiveCamera(Vec3f &c, Vec3f &d, Vec3f &u, float angle) {
+    Vec3f h;
 
+    d.Normalize();
+    Vec3f::Cross3(h, d, u);
+    h.Normalize();
+    Vec3f::Cross3(u, h, d);
+    u.Normalize();
+
+    this->center = c;
+    this->direction = d;
+    this->up = u;
+    this->horizontal = h;
 }
 
 Ray PerspectiveCamera::generateRay(Vec2f point) {

@@ -22,11 +22,14 @@ int main(int argc, char *argv[]) {
     char *input_file = nullptr;
     int width = 100;
     int height = 100;
-    char *output_file = nullptr;
+
     float depth_min = 0;
     float depth_max = 1;
+    char *output_file = nullptr;
     char *depth_file = nullptr;
     char *normal_file = nullptr;
+
+    bool shade_back = false;
 
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-input")) {
@@ -58,6 +61,10 @@ int main(int argc, char *argv[]) {
             i++;
             assert (i < argc);
             normal_file = argv[i];
+        } else if (!strcmp(argv[i], "-shade_back")) {
+            i++;
+            assert (i < argc);
+            shade_back = true;
         } else {
             printf("whoops error with command line argument %d: '%s'\n", i, argv[i]);
             assert(0);
@@ -73,6 +80,7 @@ int main(int argc, char *argv[]) {
     Image render_image(width, height);
     Image depth_image(width, height);
     render_image.SetAllPixels(scene_parser.getBackgroundColor());
+
     // bottom_left -> (0, 0), upper_right -> (width, height)
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
