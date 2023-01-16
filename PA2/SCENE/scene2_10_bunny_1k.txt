@@ -29,7 +29,7 @@ Group {
     MaterialIndex 0
     Transform {
         UniformScale  5
-	Translate  0.03 -0.0666 0 	
+	    Translate  0.03 -0.0666 0
         TriangleMesh {
             obj_file bunny_1k.obj
         }

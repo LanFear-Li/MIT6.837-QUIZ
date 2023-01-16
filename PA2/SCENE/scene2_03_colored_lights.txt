@@ -14,11 +14,11 @@ Lights {
     }
     DirectionalLight {
         direction -0.5 -1 0 
-	color 0 0 0.8
+	    color 0 0 0.8
     }
     DirectionalLight {
         direction 0 -1 -0.5 
-	color 0 0.8 0
+	    color 0 0.8 0
     }
 }
 

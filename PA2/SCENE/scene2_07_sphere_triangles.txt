@@ -36,14 +36,14 @@ Group {
     MaterialIndex 1
     Triangle {
         vertex0 -2 0.2 0
-	vertex1 2 0.2 0
-	vertex2 0 2 0
+	    vertex1 2 0.2 0
+	    vertex2 0 2 0
     }
     MaterialIndex 2
     Triangle {
         vertex0 -2 -0.2 0
-	vertex1 2 -0.2 0
-	vertex2 0 -2 0
+	    vertex1 2 -0.2 0
+	    vertex2 0 -2 0
     }
 }
 
