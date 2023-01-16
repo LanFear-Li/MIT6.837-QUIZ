@@ -3,6 +3,7 @@
 
 #include "ray.h"
 #include "hit.h"
+#include "matrix.h"
 
 class Object3D {
 public:
@@ -35,6 +36,11 @@ public:
     bool intersect(const Ray &r, Hit &h, float t_min) override;
 
     ~Plane();
+
+    Vec3f normal;
+
+    // all point P on plane satisfy: P * n = d
+    float distance;
 };
 
 class Triangle : public virtual Object3D {
@@ -44,6 +50,8 @@ public:
     bool intersect(const Ray &r, Hit &h, float t_min) override;
 
     ~Triangle();
+
+    Vec3f a, b ,c;
 };
 
 class Group : public virtual Object3D {
@@ -68,6 +76,9 @@ public:
     bool intersect(const Ray &r, Hit &h, float t_min) override;
 
     ~Transform();
+
+    Matrix mat;
+    Object3D *object3d_ptr;
 };
 
 #endif

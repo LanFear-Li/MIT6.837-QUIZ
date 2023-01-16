@@ -27,15 +27,18 @@ public:
     ~OrthographicCamera();
 
     Vec3f center;
+
     Vec3f direction;
     Vec3f up;
     Vec3f horizontal;
+
+    // screen plane square size
     float size;
 };
 
 class PerspectiveCamera : public virtual Camera {
 public:
-    PerspectiveCamera(Vec3f &center, Vec3f &direction, Vec3f &up, float angle);
+    PerspectiveCamera(Vec3f &center, Vec3f &direction, Vec3f &up, float fov);
 
     Ray generateRay(Vec2f point) override;
 
@@ -43,11 +46,17 @@ public:
 
     ~PerspectiveCamera();
 
+    // camera center[origin]
     Vec3f center;
+
+    // camera direction basis
     Vec3f direction;
     Vec3f up;
     Vec3f horizontal;
-    Vec3f fov;
+
+    // vertical field of view[FOV]
+    float fov;
+    float near;
 };
 
 #endif
