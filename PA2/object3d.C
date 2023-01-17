@@ -179,7 +179,9 @@ Transform::Transform(Matrix &m, Object3D *o) {
 }
 
 bool Transform::intersect(const Ray &r, Hit &h, float t_min) {
-    // TODO: transform the ray
+    r = this->mat * r;
+
+
     return object3d_ptr->intersect(r, h, t_min);
 }
 

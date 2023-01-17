@@ -58,7 +58,8 @@ PerspectiveCamera::PerspectiveCamera(Vec3f &c, Vec3f &d, Vec3f &u, float fov) {
 
 Ray PerspectiveCamera::generateRay(Vec2f point) {
     point -= Vec2f(0.5f, 0.5f);
-    Vec3f screen_loc = this->center + this->direction * this->near + Vec3f(point.x(), point.y(), 0);
+    Vec3f screen_loc = this->center + this->direction * this->near;
+    screen_loc += point.x() * this->horizontal + point.y() * this->up;
 
     Vec3f origin = this->center;
     Vec3f ray_dir = screen_loc - this->center;
