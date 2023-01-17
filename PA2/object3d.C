@@ -12,51 +12,43 @@ Sphere::Sphere(Vec3f c, float r, Material *m) {
 }
 
 bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
-    Vec3f ori = r.getOrigin(), dir = r.getDirection();
-
-    // let a = ray's origin, b = another point at ray
-    // and c = sphere's center, rad = sphere's radius;
-    Vec3f a = ori, b = ori + dir * 1.0f;
-    Vec3f c = this->center;
+    Vec3f cen = this->center;
     float rad = this->radius;
+    Vec3f ori = r.getOrigin(), dir = r.getDirection();
+    Vec3f start = ori - cen;
 
-    // calculate distance from center to ray with dot production
-    Vec3f ab = b - a;
-    Vec3f ac = c - a;
-    float cosine = ab.Dot3(ac) / ab.Length() / ac.Length();
-    float sine = sqrt(1 - cosine * cosine);
-    float dis_to_ray = ac.Length() * sine;
+    // calculate ray-sphere intersection with equation:
+    // (start + t * dir) * (start + t * dir) - rad * rad = 0
+    // (dir * dir) * t^2 + (2 * start * dir) * t + (start * start - rad * rad) = 0
+    float a = 1;
+    float half_b = start.Dot3(dir);
+    float c = start.Dot3(start) - rad * rad;
 
-    // no intersection
-    if (dis_to_ray > rad) {
+    // discriminant = 4(half_b * half_b - a * c)
+    float discriminant = half_b * half_b - a * c;
+    if (discriminant < 0) {
         return false;
     }
 
-    // find max t and check legality
-    float unit_length = dir.Length();
-    float t_max = (ac.Length() * cosine + this->radius * 10) / unit_length;
-    if (t_min > t_max) {
-        return false;
-    }
-
-    // enumerate all possible t and update hit info
-    float step = 0.01;
-    for (float t = t_min; t <= t_max; t += step) {
-        Vec3f p = ori + dir * t;
-
-        float dis = (p - c).Length();
-        if (dis <= rad) {
-            if (h.getMaterial() == nullptr || t < h.getT()) {
-                Vec3f normal = p - c;
-                normal.Normalize();
-                h.set(t, material_ptr, normal, r);
-            }
-
-            return true;
+    // get equation root
+    float sqrt_dis = sqrt(discriminant);
+    float t = (-half_b - sqrt_dis) / a;
+    if (t < t_min) {
+        t = (-half_b + sqrt_dis) / a;
+        if (t < t_min) {
+            return false;
         }
     }
 
-    return false;
+    if (h.getMaterial() == nullptr || t < h.getT()) {
+        Vec3f p = ori + dir * t;
+        Vec3f normal = p - cen;
+        normal.Normalize();
+
+        h.set(t, material_ptr, normal, r);
+    }
+
+    return true;
 }
 
 Sphere::~Sphere() = default;
@@ -114,11 +106,7 @@ bool Plane::intersect(const Ray &r, Hit &h, float t_min) {
     }
 
     if (h.getMaterial() == nullptr || t < h.getT()) {
-        Vec3f p = ori + dir * t;
-        Vec3f n = p - ori;
-        n.Normalize();
-
-        h.set(t, material_ptr, n, r);
+        h.set(t, material_ptr, this->normal, r);
     }
 
     return true;

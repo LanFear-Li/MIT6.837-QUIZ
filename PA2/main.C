@@ -110,8 +110,13 @@ int main(int argc, char *argv[]) {
                 Vec3f normal = hit.getNormal();
 
                 // enable back face shading
-                if (shade_back && normal.Dot3(ray.getDirection()) > 0) {
-                    normal *= -1;
+                if (normal.Dot3(ray.getDirection()) > 0) {
+                    if (shade_back) {
+                        normal *= -1;
+                    } else {
+                        render_image.SetPixel(i, j, BLACK);
+                        continue;
+                    }
                 }
 
                 // diffuse shading
@@ -125,7 +130,7 @@ int main(int argc, char *argv[]) {
                     scene_parser.getLight(k)->getIllumination(Vec3f(), dir, light_color);
                     Vec3f diffuse_color = f_clamp(dir.Dot3(normal)) * light_color * object_color;
 
-//                    render_color += diffuse_color;
+                    render_color += diffuse_color;
                 }
                 render_image.SetPixel(i, j, render_color);
 
