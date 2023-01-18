@@ -1,9 +1,12 @@
 #ifndef _OBJECT3D_H_
 #define _OBJECT3D_H_
 
+#include <limits>
+
 #include "ray.h"
 #include "hit.h"
 #include "matrix.h"
+#include "material.h"
 
 class Object3D {
 public:
@@ -78,6 +81,10 @@ public:
     ~Transform();
 
     Matrix mat;
+    Matrix mat_inv;
+    Matrix mat_transpose;
+    Matrix mat_trans_inv;
+
     Object3D *object3d_ptr;
 };
 

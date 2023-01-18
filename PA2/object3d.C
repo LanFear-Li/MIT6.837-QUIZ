@@ -40,14 +40,10 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
         }
     }
 
-    if (h.getMaterial() == nullptr || t < h.getT()) {
-        Vec3f p = ori + dir * t;
-        Vec3f normal = p - cen;
-        normal.Normalize();
-
-        h.set(t, material_ptr, normal, r);
-    }
-
+    Vec3f p = ori + dir * t;
+    Vec3f normal = p - cen;
+    normal.Normalize();
+    h.set(t, material_ptr, normal, r);
     return true;
 }
 
@@ -60,9 +56,16 @@ Group::Group(int num) {
 }
 
 bool Group::intersect(const Ray &r, Hit &h, float t_min) {
+    h = Hit(std::numeric_limits<float>::max(), nullptr, Vec3f());
     bool intersected = false;
+
     for (int i = 0; i < num_objects; i++) {
-        if (object3D_ptr[i]->intersect(r, h, t_min)) {
+        Hit cur_hit;
+        if (object3D_ptr[i]->intersect(r, cur_hit, t_min)) {
+            if (cur_hit.getT() < h.getT()) {
+                h = cur_hit;
+            }
+
             intersected = true;
         }
     }
@@ -105,10 +108,7 @@ bool Plane::intersect(const Ray &r, Hit &h, float t_min) {
         return false;
     }
 
-    if (h.getMaterial() == nullptr || t < h.getT()) {
-        h.set(t, material_ptr, this->normal, r);
-    }
-
+    h.set(t, material_ptr, this->normal, r);
     return true;
 }
 
@@ -160,10 +160,7 @@ bool Triangle::intersect(const Ray &r, Hit &h, float t_min) {
 
     // TODO: ray-triangle intersection with barycentric coordinate
     if (cross_a > 0 && cross_b > 0 && cross_c > 0 || cross_a <= 0 && cross_b <= 0 && cross_c <= 0) {
-        if (h.getMaterial() == nullptr || t < h.getT()) {
-            h.set(t, material_ptr, normal, r);
-        }
-
+        h.set(t, material_ptr, normal, r);
         return true;
     }
 
@@ -175,14 +172,52 @@ Triangle::~Triangle() = default;
 
 Transform::Transform(Matrix &m, Object3D *o) {
     this->mat = m;
+
+    this->mat_inv = m;
+    this->mat_inv.Inverse();
+
+    this->mat_transpose = m;
+    this->mat_transpose.Transpose();
+
+    this->mat_trans_inv = this->mat_inv;
+    this->mat_trans_inv.Transpose();
+
     this->object3d_ptr = o;
 }
 
 bool Transform::intersect(const Ray &r, Hit &h, float t_min) {
-    r = this->mat * r;
+    Vec3f ori = r.getOrigin(), dir = r.getDirection();
 
+    // transform the ray from world space to object space
+    Vec4f ori_homo(ori, 1.0f);
+    this->mat_inv.Transform(ori_homo);
+    ori_homo.DivideByW();
+    ori = Vec3f(ori_homo.x(), ori_homo.y(), ori_homo.z());
 
-    return object3d_ptr->intersect(r, h, t_min);
+    Vec4f dir_homo(dir, 0.0f);
+    this->mat_inv.Transform(dir_homo);
+    dir = Vec3f(dir_homo.x(), dir_homo.y(), dir_homo.z());
+    float dir_depth = dir.Length();
+    dir.Normalize();
+
+    Ray trans_ray(ori, dir);
+    if (object3d_ptr->intersect(trans_ray, h, t_min)) {
+        // transform the normal from object space to world space
+        Vec3f normal = h.getNormal();
+        Vec4f normal_homo(normal, 0.0f);
+        this->mat_trans_inv.Transform(normal_homo);
+        normal = Vec3f(normal_homo.x(), normal_homo.y(), normal_homo.z());
+        normal.Normalize();
+
+        // transform the depth from object space to world space
+        float t = h.getT();
+        t = t / dir_depth;
+
+        h.set(t, h.getMaterial(), normal, trans_ray);
+        return true;
+    }
+
+    return false;
 }
 
 Transform::~Transform() = default;

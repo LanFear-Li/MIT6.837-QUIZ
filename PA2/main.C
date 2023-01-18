@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     render_image.SetAllPixels(scene_parser.getBackgroundColor());
     normal_image.SetAllPixels(BLACK);
 
-    Vec3f ambient_color = Vec3f(0.1, 0.1, 0.1);
+    Vec3f ambient_color = scene_parser.getAmbientLight();
 
     // bottom_left -> (0, 0), upper_right -> (width, height)
     std::cout << "rendering..." << std::endl;
@@ -141,11 +141,10 @@ int main(int argc, char *argv[]) {
                 depth_image.SetPixel(i, j, depth_color);
 
                 // normal visualization
-                // x and y [-1, 1] -> [0, 255 / 255]
-                float x = (normal.x() + 1) / 2;
-                float y = (normal.y() + 1) / 2;
-                // z [0, 1] -> [128 / 255, 255 / 255]
-                float z = normal.z() * (127.0f / 255) + 128.0f / 255;
+                // x, y and z [-1, 1] -> [0, 1]
+                float x = fabs(normal.x());
+                float y = fabs(normal.y());
+                float z = fabs(normal.z());
                 Vec3f normal_color(x, y, z);
                 normal_image.SetPixel(i, j, normal_color);
             }
