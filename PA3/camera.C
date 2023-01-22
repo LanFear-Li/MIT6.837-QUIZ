@@ -58,7 +58,7 @@ void OrthographicCamera::glPlaceCamera(void) {
 // Special considerations:
 //  - If your constructor precomputes any vectors for
 //    use in 'generateRay', you will likely to recompute those
-//    values at athe end of the these three routines
+//    values at the end of the these three routines
 // ====================================================================
 
 // ====================================================================
@@ -80,10 +80,6 @@ void OrthographicCamera::dollyCamera(float dist) {
 // ====================================================================
 
 void OrthographicCamera::truckCamera(float dx, float dy) {
-    Vec3f horizontal;
-    Vec3f::Cross3(horizontal, direction, up);
-    horizontal.Normalize();
-
     Vec3f screenUp;
     Vec3f::Cross3(screenUp, horizontal, direction);
 

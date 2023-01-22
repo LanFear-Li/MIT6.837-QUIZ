@@ -48,7 +48,45 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
 }
 
 void Sphere::paint() {
+    this->material_ptr->glSetMaterial();
+    glBegin(GL_QUADS);
 
+    int num_theta = 10, num_phi = 5;
+    for (int iPhi = 0; iPhi <= 360; iPhi += num_phi) {
+        for (int iTheta = 0; iTheta <= 90; iTheta += num_theta) {
+            float x = this->radius * sin(iTheta) * cos(iPhi);
+            float y = this->radius * sin(iTheta) * sin(iPhi);
+            float z = this->radius * cos(iTheta);
+
+            Vec3f rec_cen(x, y, z);
+            rec_cen += this->center;
+
+            Vec3f rec_norm = rec_cen - this->center;
+            rec_norm.Normalize();
+
+            // calculate rectangle basis vector
+            Vec3f basis_x(1, 0, 0);
+            if (rec_norm.Dot3(basis_x) == 0) {
+                basis_x.Set(0, 1, 0);
+            }
+
+            Vec3f basis_y;
+            Vec3f::Cross3(basis_y, rec_norm, basis_x);
+
+            Vec3f a = this->center + basis_x * (-num_theta * 0.5) + basis_y * (-num_phi * 0.5);
+            Vec3f b = this->center + basis_x * (-num_theta * 0.5) + basis_y * (num_phi * 0.5);
+            Vec3f c = this->center + basis_x * (num_theta * 0.5) + basis_y * (num_phi * 0.5);
+            Vec3f d = this->center + basis_x * (num_theta * 0.5) + basis_y * (-num_phi * 0.5);
+
+            glNormal3f(rec_norm.x(), rec_norm.y(), rec_norm.z());
+            glVertex3f(a.x(), a.y(), a.z());
+            glVertex3f(b.x(), b.y(), b.z());
+            glVertex3f(c.x(), c.y(), c.z());
+            glVertex3f(d.x(), d.y(), d.z());
+        }
+    }
+
+    glEnd();
 }
 
 Sphere::~Sphere() = default;
@@ -91,7 +129,9 @@ Group::~Group() {
 }
 
 void Group::paint() {
-
+    for (int i = 0; i < num_objects; i++) {
+        object3D_ptr[i]->paint();
+    }
 }
 
 
@@ -121,7 +161,29 @@ bool Plane::intersect(const Ray &r, Hit &h, float t_min) {
 }
 
 void Plane::paint() {
+    // calculate plane basis vector
+    Vec3f basis_x(1, 0, 0);
+    if (this->normal.Dot3(basis_x) == 0) {
+        basis_x.Set(0, 1, 0);
+    }
 
+    Vec3f basis_y;
+    Vec3f::Cross3(basis_y, this->normal, basis_x);
+
+    float MAX_LIMIT = 1e6;
+    Vec3f a = basis_x * -MAX_LIMIT + basis_y * -MAX_LIMIT;
+    Vec3f b = basis_x * -MAX_LIMIT + basis_y * MAX_LIMIT;
+    Vec3f c = basis_x * MAX_LIMIT + basis_y * MAX_LIMIT;
+    Vec3f d = basis_x * -MAX_LIMIT + basis_y * MAX_LIMIT;
+
+    this->material_ptr->glSetMaterial();
+    glBegin(GL_QUADS);
+    glNormal3f(this->normal.x(), this->normal.y(), this->normal.z());
+    glVertex3f(a.x(), a.y(), a.z());
+    glVertex3f(b.x(), b.y(), b.z());
+    glVertex3f(c.x(), c.y(), c.z());
+    glVertex3f(d.x(), d.y(), d.z());
+    glEnd();
 }
 
 Plane::~Plane() = default;
@@ -132,15 +194,17 @@ Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     this->b = b;
     this->c = c;
 
+    Vec3f n;
+    Vec3f::Cross3(n, this->a - this->b, this->a - this->c);
+    n.Normalize();
+    this->normal = n;
+
     this->material_ptr = m;
 }
 
 bool Triangle::intersect(const Ray &r, Hit &h, float t_min) {
     Vec3f ori = r.getOrigin(), dir = r.getDirection();
 
-    Vec3f normal;
-    Vec3f::Cross3(normal, this->a - this->b, this->a - this->c);
-    normal.Normalize();
     float dis = this->a.Dot3(normal);
 
     // ray parallel with plane
@@ -180,7 +244,14 @@ bool Triangle::intersect(const Ray &r, Hit &h, float t_min) {
 }
 
 void Triangle::paint() {
+    this->material_ptr->glSetMaterial();
 
+    glBegin(GL_TRIANGLES);
+    glNormal3f(this->normal.x(), this->normal.y(), this->normal.z());
+    glVertex3f(this->a.x(), this->a.y(), this->a.z());
+    glVertex3f(this->b.x(), this->b.y(), this->b.z());
+    glVertex3f(this->c.x(), this->c.y(), this->c.z());
+    glEnd();
 }
 
 Triangle::~Triangle() = default;
@@ -237,7 +308,13 @@ bool Transform::intersect(const Ray &r, Hit &h, float t_min) {
 }
 
 void Transform::paint() {
+    glPushMatrix();
+    GLfloat *glMatrix = this->mat.glGet();
+    glMultMatrixf(glMatrix);
+    delete[] glMatrix;
 
+    this->object3d_ptr->paint();
+    glPopMatrix();
 }
 
 Transform::~Transform() = default;

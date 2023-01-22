@@ -17,13 +17,14 @@ public:
 
     Material(const Vec3f &d_color);
 
-    virtual Vec3f Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) {}
+    virtual Vec3f
+    Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) { return Vec3f(); }
 
-    virtual void glSetMaterial() {}
+    virtual void glSetMaterial() const = 0;
 
     Vec3f getDiffuseColor() const;
 
-    ~Material();
+    virtual ~Material();
 
 protected:
     Vec3f diffuseColor;
@@ -40,7 +41,7 @@ public:
 
     Vec3f getSpecularColor() const;
 
-    ~PhongMaterial();
+    ~PhongMaterial() override;
 
 protected:
     Vec3f specularColor;

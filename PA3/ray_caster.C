@@ -27,8 +27,6 @@ void RayCaster::render_image(Image &output_image, Image &depth_image, Image &nor
     int width = output_image.Width(), height = output_image.Height();
 
     // bottom_left -> (0, 0), upper_right -> (width, height)
-    std::cout << "rendering..." << std::endl;
-    std::cout << "shade back: " << shade_back << std::endl;
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
             float u = i * 1.0f / width;
@@ -59,13 +57,11 @@ void RayCaster::render_image(Image &output_image, Image &depth_image, Image &nor
 
                 int light_num = scene_parser->getNumLights();
                 for (int k = 0; k < light_num; k++) {
-                    Vec3f dir, light_color;
+                    Vec3f dir_to_light, light_color;
                     float dis_to_light;
 
-                    scene_parser->getLight(k)->getIllumination(Vec3f(), dir, light_color, dis_to_light);
-                    Vec3f diffuse_color = f_clamp(dir.Dot3(normal)) * light_color * object_color;
-
-                    render_color += diffuse_color;
+                    scene_parser->getLight(k)->getIllumination(Vec3f(), dir_to_light, light_color, dis_to_light);
+                    render_color += material_ptr->Shade(ray, hit, dir_to_light, light_color);
                 }
                 output_image.SetPixel(i, j, render_color);
 

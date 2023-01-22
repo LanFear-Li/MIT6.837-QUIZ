@@ -2,6 +2,7 @@
 #define _OBJECT3D_H_
 
 #include <limits>
+#include <GL/gl.h>
 
 #include "ray.h"
 #include "hit.h"
@@ -63,6 +64,7 @@ public:
     ~Triangle();
 
     Vec3f a, b ,c;
+    Vec3f normal;
 };
 
 class Group : public virtual Object3D {
