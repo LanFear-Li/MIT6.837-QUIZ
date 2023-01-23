@@ -24,13 +24,13 @@ Vec3f PhongMaterial::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLig
     Vec3f normal = hit.getNormal();
 
     // implement phong shading model: ambient + diffuse + specular
-    Vec3f diffuse_color = this->diffuseColor * fmax(dirToLight.Dot3(normal), 0);
+    Vec3f diffuse_color = this->diffuseColor * fmax(normal.Dot3(dirToLight), 0);
 
-    Vec3f reflect_dir = 2 * (normal.Dot3(dirToLight)) * normal - dirToLight;
-    reflect_dir.Normalize();
-    Vec3f view_dir = ray.getOrigin() - hit.getIntersectionPoint();
-    view_dir.Normalize();
-    Vec3f specular_color = this->specularColor * pow(reflect_dir.Dot3(view_dir), this->exponent);
+    Vec3f v = ray.getDirection();
+    v.Negate();
+    Vec3f half_vec = v + dirToLight;
+    half_vec.Normalize();
+    Vec3f specular_color = this->specularColor * pow(normal.Dot3(half_vec), this->exponent);
 
     return (diffuse_color + specular_color) * lightColor;
 }

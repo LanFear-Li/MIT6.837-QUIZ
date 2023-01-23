@@ -17,8 +17,7 @@ public:
 
     Material(const Vec3f &d_color);
 
-    virtual Vec3f
-    Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) { return Vec3f(); }
+    virtual Vec3f Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const = 0;
 
     virtual void glSetMaterial() const = 0;
 

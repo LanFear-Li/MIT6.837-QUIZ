@@ -1,5 +1,7 @@
 #include "object3d.h"
 
+extern InputParser input_parser;
+
 Object3D::Object3D() = default;
 
 Object3D::~Object3D() = default;
@@ -47,43 +49,58 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
     return true;
 }
 
+Vec3f Sphere::sphere_loc(float theta, float phi) const {
+    // Y-axis is upward and Z-axis is flipped(negative is forward)
+    float x = this->radius * sinf(phi) * cosf(theta);
+    float y = this->radius * cosf(phi);
+    float z = -this->radius * sinf(phi) * sinf(theta);
+
+    return Vec3f(x, y, z) + this->center;
+}
+
 void Sphere::paint() {
     this->material_ptr->glSetMaterial();
+
+    bool gouraud = input_parser.gouraud;
+    float num_theta = input_parser.num_theta, num_phi = input_parser.num_phi;
+    float step_theta = M_PI * 2.0f / num_theta;
+    float step_phi = M_PI * 1.0f / num_phi;
+
     glBegin(GL_QUADS);
+    float cur_theta = 0.0f, cur_phi = 0.0f;
+    for (int iPhi = 0; iPhi <= num_phi; iPhi++) {
+        float next_phi = cur_phi + step_phi;
 
-    int num_theta = 10, num_phi = 5;
-    for (int iPhi = 0; iPhi <= 360; iPhi += num_phi) {
-        for (int iTheta = 0; iTheta <= 90; iTheta += num_theta) {
-            float x = this->radius * sin(iTheta) * cos(iPhi);
-            float y = this->radius * sin(iTheta) * sin(iPhi);
-            float z = this->radius * cos(iTheta);
+        for (int iTheta = 0; iTheta <= num_theta; iTheta++) {
+            float next_theta = cur_theta + step_theta;
 
-            Vec3f rec_cen(x, y, z);
-            rec_cen += this->center;
+            Vec3f a = sphere_loc(cur_theta, cur_phi);
+            Vec3f b = sphere_loc(cur_theta, next_phi);
+            Vec3f c = sphere_loc(next_theta, next_phi);
+            Vec3f d = sphere_loc(next_theta, cur_phi);
 
-            Vec3f rec_norm = rec_cen - this->center;
-            rec_norm.Normalize();
-
-            // calculate rectangle basis vector
-            Vec3f basis_x(1, 0, 0);
-            if (rec_norm.Dot3(basis_x) == 0) {
-                basis_x.Set(0, 1, 0);
+            if (!gouraud) {
+                Vec3f normal = (a + b + c + d) * 0.25f - this->center;
+                glNormal3f(normal.x(), normal.y(), normal.z());
+                glVertex3f(a.x(), a.y(), a.z());
+                glVertex3f(b.x(), b.y(), b.z());
+                glVertex3f(c.x(), c.y(), c.z());
+                glVertex3f(d.x(), d.y(), d.z());
+            } else {
+                glNormal3f(a.x() - this->center.x(), a.y() - this->center.y(), a.z() - this->center.z());
+                glVertex3f(a.x(), a.y(), a.z());
+                glNormal3f(b.x() - this->center.x(), b.y() - this->center.y(), b.z() - this->center.z());
+                glVertex3f(b.x(), b.y(), b.z());
+                glNormal3f(c.x() - this->center.x(), c.y() - this->center.y(), c.z() - this->center.z());
+                glVertex3f(c.x(), c.y(), c.z());
+                glNormal3f(d.x() - this->center.x(), d.y() - this->center.y(), d.z() - this->center.z());
+                glVertex3f(d.x(), d.y(), d.z());
             }
 
-            Vec3f basis_y;
-            Vec3f::Cross3(basis_y, rec_norm, basis_x);
-
-            Vec3f a = this->center + basis_x * (-num_theta * 0.5) + basis_y * (-num_phi * 0.5);
-            Vec3f b = this->center + basis_x * (-num_theta * 0.5) + basis_y * (num_phi * 0.5);
-            Vec3f c = this->center + basis_x * (num_theta * 0.5) + basis_y * (num_phi * 0.5);
-            Vec3f d = this->center + basis_x * (num_theta * 0.5) + basis_y * (-num_phi * 0.5);
-
-            glNormal3f(rec_norm.x(), rec_norm.y(), rec_norm.z());
-            glVertex3f(a.x(), a.y(), a.z());
-            glVertex3f(b.x(), b.y(), b.z());
-            glVertex3f(c.x(), c.y(), c.z());
-            glVertex3f(d.x(), d.y(), d.z());
+            cur_theta = next_theta;
         }
+
+        cur_phi = next_phi;
     }
 
     glEnd();

@@ -8,6 +8,7 @@
 #include "hit.h"
 #include "matrix.h"
 #include "material.h"
+#include "input_parser.h"
 
 class Object3D {
 public:
@@ -29,6 +30,8 @@ public:
     bool intersect(const Ray &r, Hit &h, float t_min) override;
 
     void paint() override;
+
+    Vec3f sphere_loc(float theta, float phi) const;
 
     ~Sphere();
 
