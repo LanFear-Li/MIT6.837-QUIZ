@@ -1,6 +1,6 @@
 #include "object3d.h"
 
-extern InputParser input_parser;
+extern RayTracer ray_tracer;
 
 Object3D::Object3D() = default;
 
@@ -61,6 +61,7 @@ Vec3f Sphere::sphere_loc(float theta, float phi) const {
 void Sphere::paint() {
     this->material_ptr->glSetMaterial();
 
+    InputParser input_parser = *ray_tracer.input_parser;
     bool gouraud = input_parser.gouraud;
     float num_theta = input_parser.num_theta, num_phi = input_parser.num_phi;
     float step_theta = M_PI * 2.0f / num_theta;

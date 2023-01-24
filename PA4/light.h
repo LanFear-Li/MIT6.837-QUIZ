@@ -1,6 +1,8 @@
 #ifndef _LIGHT_H_
 #define _LIGHT_H_
 
+#include <GL/gl.h>
+
 #include "vectors.h"
 #include "object3d.h"
 

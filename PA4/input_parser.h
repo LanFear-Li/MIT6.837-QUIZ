@@ -7,7 +7,7 @@
 
 class InputParser {
 public:
-    void parse_input(int argc, char *argv[]);
+    InputParser(int argc, char *argv[]);
 
     int width{};
     int height{};
@@ -26,6 +26,10 @@ public:
     bool shade_back = false;
     bool gui = false;
     bool gouraud = false;
+
+    bool shadows = false;
+    int max_bounces{};
+    float cutoff_weight{};
 };
 
 #endif //_INPUT_PARSER_H

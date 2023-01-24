@@ -7,11 +7,13 @@ float f_clamp(float v, float min = 0, float max = 1) {
     return ans;
 }
 
-void RayTracer::get_scene(char *input_file) {
-    this->scene_parser = new SceneParser(input_file);
+void RayTracer::init(InputParser *input, SceneParser *scene) {
+    this->input_parser = input;
+    this->scene_parser = scene;
 }
 
 RayTracer::~RayTracer() {
+    delete this->input_parser;
     delete this->scene_parser;
 }
 
@@ -81,6 +83,10 @@ void RayTracer::render_image(Image &output_image, Image &depth_image, Image &nor
             }
         }
     }
+}
+
+Vec3f RayTracer::traceRay(Ray &ray, float tmin, int bounces, float weight, float indexOfRefraction, Hit &hit) const {
+    return Vec3f();
 }
 
 

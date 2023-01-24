@@ -13,11 +13,15 @@ Vec3f Material::getDiffuseColor() const {
 Material::~Material() = default;
 
 
-PhongMaterial::PhongMaterial(const Vec3f &diffuseColor, const Vec3f &specularColor, float exponent)
+PhongMaterial::PhongMaterial(const Vec3f &diffuseColor, const Vec3f &specularColor, float exponent,
+                             const Vec3f &reflectiveColor, const Vec3f &transparentColor, float indexOfRefraction)
         : Material(diffuseColor) {
     this->diffuseColor = diffuseColor;
     this->specularColor = specularColor;
     this->exponent = exponent;
+    this->reflectiveColor = reflectiveColor;
+    this->transparentColor = transparentColor;
+    this->indexOfRefraction = indexOfRefraction;
 }
 
 Vec3f PhongMaterial::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const {
@@ -92,6 +96,23 @@ void PhongMaterial::glSetMaterial() const {
 
 Vec3f PhongMaterial::getSpecularColor() const {
     return this->specularColor;
+}
+
+Vec3f PhongMaterial::getReflectiveColor() const {
+    return this->reflectiveColor;
+}
+
+Vec3f PhongMaterial::getTransparentColor() const {
+    return this->transparentColor;
+}
+
+Vec3f PhongMaterial::mirrorDirection(const Vec3f &normal, const Vec3f &incoming) {
+    return Vec3f();
+}
+
+bool PhongMaterial::transmittedDirection(const Vec3f &normal, const Vec3f &incoming, float index_i, float index_t,
+                                         Vec3f &transmitted) {
+    return false;
 }
 
 PhongMaterial::~PhongMaterial() = default;

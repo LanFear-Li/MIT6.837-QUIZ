@@ -1,6 +1,6 @@
 #include "input_parser.h"
 
-void InputParser::parse_input(int argc, char **argv) {
+InputParser::InputParser(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-input")) {
             i++;
@@ -44,6 +44,16 @@ void InputParser::parse_input(int argc, char **argv) {
             num_phi = atof(argv[i]);
         } else if (!strcmp(argv[i], "-gouraud")) {
             gouraud = true;
+        } else if (!strcmp(argv[i], "-shadows")) {
+            shadows = true;
+        } else if (!strcmp(argv[i], "-bounces")) {
+            i++;
+            assert (i < argc);
+            max_bounces = atoi(argv[i]);
+        } else if (!strcmp(argv[i], "-weight")) {
+            i++;
+            assert (i < argc);
+            cutoff_weight = atof(argv[i]);
         } else {
             printf("whoops error with command line argument %d: '%s'\n", i, argv[i]);
             assert(0);
