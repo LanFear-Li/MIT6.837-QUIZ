@@ -14,11 +14,11 @@ OrthographicCamera::OrthographicCamera(Vec3f c, Vec3f d, Vec3f u, float s) {
     Vec3f::Cross3(u, h, d);
     u.Normalize();
 
-    this->center = c;
-    this->direction = d;
-    this->up = u;
-    this->horizontal = h;
-    this->size = s;
+    center = c;
+    direction = d;
+    up = u;
+    horizontal = h;
+    size = s;
 }
 
 // ====================================================================
@@ -124,12 +124,12 @@ void OrthographicCamera::rotateCamera(float rx, float ry) {
 
 Ray OrthographicCamera::generateRay(Vec2f point) {
     point -= Vec2f(0.5f, 0.5f);
-    Vec3f origin = this->center;
+    Vec3f origin = center;
 
-    origin += this->horizontal * this->size * point.x();
-    origin += this->up * this->size * point.y();
+    origin += horizontal * size * point.x();
+    origin += up * size * point.y();
 
-    return Ray(origin, this->direction);
+    return Ray(origin, direction);
 }
 
 float OrthographicCamera::getTMin() const {
@@ -148,13 +148,13 @@ PerspectiveCamera::PerspectiveCamera(Vec3f &c, Vec3f &d, Vec3f &u, float fov) {
     Vec3f::Cross3(u, h, d);
     u.Normalize();
 
-    this->center = c;
-    this->direction = d;
-    this->up = u;
-    this->horizontal = h;
+    center = c;
+    direction = d;
+    up = u;
+    horizontal = h;
 
-    this->fov = fov;
-    this->near = 1.0f / (2 * tan(fov / 2));
+    fov = fov;
+    near = 1.0f / (2 * tan(fov / 2));
 }
 
 // ====================================================================
@@ -259,11 +259,11 @@ void PerspectiveCamera::rotateCamera(float rx, float ry) {
 
 Ray PerspectiveCamera::generateRay(Vec2f point) {
     point -= Vec2f(0.5f, 0.5f);
-    Vec3f screen_loc = this->center + this->direction * this->near;
-    screen_loc += point.x() * this->horizontal + point.y() * this->up;
+    Vec3f screen_loc = center + direction * near;
+    screen_loc += point.x() * horizontal + point.y() * up;
 
-    Vec3f origin = this->center;
-    Vec3f ray_dir = screen_loc - this->center;
+    Vec3f origin = center;
+    Vec3f ray_dir = screen_loc - center;
     ray_dir.Normalize();
     return Ray(origin, ray_dir);
 }

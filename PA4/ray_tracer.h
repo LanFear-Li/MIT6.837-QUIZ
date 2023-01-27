@@ -17,10 +17,14 @@ class RayTracer {
 public:
     void init(InputParser *input, SceneParser *scene);
 
-    void render_image(Image &output_image, Image &depth_image, Image &normal_image,
-                      float depth_min, float depth_max, bool shade_back) const;
+    void render(Image &output_image, Image &depth_image, Image &normal_image) const;
 
-    Vec3f traceRay(Ray &ray, float tmin, int bounces, float weight, float indexOfRefraction, Hit &hit) const;
+    static Vec3f mirrorDirection(const Vec3f &normal, const Vec3f &incoming);
+
+    static bool transmittedDirection(const Vec3f &normal, const Vec3f &incoming, float index_i, float index_t,
+                              Vec3f &transmitted) ;
+
+    Vec3f traceRay(Ray &ray, float t_min, int bounces, float weight, float indexOfRefraction, Hit &hit) const;
 
     ~RayTracer();
 

@@ -15,10 +15,9 @@ void render_magic() {
     Image normal_image(input_parser.width, input_parser.height);
 
     // render image with ray caster
-    ray_tracer.render_image(render_image, depth_image, normal_image,
-                            input_parser.depth_min, input_parser.depth_max, input_parser.shade_back);
+    ray_tracer.render(render_image, depth_image, normal_image);
 
-    // save ray caster render_image, depth image and normal image
+    // save ray caster render, depth image and normal image
     render_image.SaveTGA(input_parser.output_file);
     if (input_parser.depth_file != nullptr) {
         depth_image.SaveTGA(input_parser.depth_file);
@@ -29,8 +28,8 @@ void render_magic() {
     }
 }
 
-void traceRay_magic(float x, float y) {
-
+void raytrace_magic(float x, float y) {
+    
 }
 
 int main(int argc, char *argv[]) {
@@ -44,7 +43,7 @@ int main(int argc, char *argv[]) {
     if (input_parser.gui) {
         glutInit(&argc, argv);
         GLCanvas gl_canvas;
-        gl_canvas.initialize(ray_tracer.scene_parser, render_magic, traceRay_magic);
+        gl_canvas.initialize(ray_tracer.scene_parser, render_magic, raytrace_magic);
     } else {
         render_magic();
     }

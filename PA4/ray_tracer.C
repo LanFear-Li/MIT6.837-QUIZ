@@ -8,25 +8,27 @@ float f_clamp(float v, float min = 0, float max = 1) {
 }
 
 void RayTracer::init(InputParser *input, SceneParser *scene) {
-    this->input_parser = input;
-    this->scene_parser = scene;
+    input_parser = input;
+    scene_parser = scene;
 }
 
 RayTracer::~RayTracer() {
-    delete this->input_parser;
-    delete this->scene_parser;
+    // delete input_parser;
+    // delete scene_parser;
 }
 
-void RayTracer::render_image(Image &output_image, Image &depth_image, Image &normal_image,
-                             float depth_min, float depth_max, bool shade_back) const {
+void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_image) const {
     output_image.SetAllPixels(scene_parser->getBackgroundColor());
     normal_image.SetAllPixels(BLACK);
 
     Camera *camera = scene_parser->getCamera();
-    Group *group = scene_parser->getGroup();
     Vec3f ambient_color = scene_parser->getAmbientLight();
 
     int width = output_image.Width(), height = output_image.Height();
+    int bounces = input_parser->max_bounces;
+    float weight = input_parser->cutoff_weight;
+    float depth_min = input_parser->depth_min;
+    float depth_max = input_parser->depth_max;
 
     // bottom_left -> (0, 0), upper_right -> (width, height)
     for (int j = 0; j < height; j++) {
@@ -36,57 +38,134 @@ void RayTracer::render_image(Image &output_image, Image &depth_image, Image &nor
 
             Hit hit;
             Ray ray = camera->generateRay(Vec2f(u, v));
-            group->intersect(ray, hit, camera->getTMin());
 
-            Material *material_ptr = hit.getMaterial();
-            if (material_ptr != nullptr) {
-                float t = hit.getT();
-                Vec3f normal = hit.getNormal();
+            // phong model with ray tracing
+            Vec3f render_color = traceRay(ray, camera->getTMin(), bounces, weight, 1.0f, hit);
+            output_image.SetPixel(i, j, render_color);
 
-                // enable back face shading
-                if (normal.Dot3(ray.getDirection()) > 0) {
-                    if (shade_back) {
-                        normal *= -1;
-                    } else {
-                        output_image.SetPixel(i, j, BLACK);
-                        continue;
-                    }
-                }
+            float t = hit.getT();
+            Vec3f normal = hit.getNormal();
 
-                // diffuse shading
-                Vec3f object_color = hit.getMaterial()->getDiffuseColor();
-                Vec3f render_color = ambient_color * object_color;
+            // depth_image visualization
+            t = f_clamp(t, depth_min, depth_max);
+            t = 1.0f - (t - depth_min) / (depth_max - depth_min);
+            Vec3f depth_color(t, t, t);
+            depth_image.SetPixel(i, j, depth_color);
 
-                int light_num = scene_parser->getNumLights();
-                for (int k = 0; k < light_num; k++) {
-                    Vec3f dir_to_light, light_color;
-                    float dis_to_light;
-
-                    scene_parser->getLight(k)->getIllumination(Vec3f(), dir_to_light, light_color, dis_to_light);
-                    render_color += material_ptr->Shade(ray, hit, dir_to_light, light_color);
-                }
-                output_image.SetPixel(i, j, render_color);
-
-                // depth_image visualization
-                t = f_clamp(t, depth_min, depth_max);
-                t = 1.0f - (t - depth_min) / (depth_max - depth_min);
-                Vec3f depth_color(t, t, t);
-                depth_image.SetPixel(i, j, depth_color);
-
-                // normal_image visualization
-                // x, y and z [-1, 1] -> [0, 1]
-                float x = fabs(normal.x());
-                float y = fabs(normal.y());
-                float z = fabs(normal.z());
-                Vec3f normal_color(x, y, z);
-                normal_image.SetPixel(i, j, normal_color);
-            }
+            // normal_image visualization
+            // x, y and z [-1, 1] -> [0, 1]
+            float x = fabs(normal.x());
+            float y = fabs(normal.y());
+            float z = fabs(normal.z());
+            Vec3f normal_color(x, y, z);
+            normal_image.SetPixel(i, j, normal_color);
         }
     }
 }
 
-Vec3f RayTracer::traceRay(Ray &ray, float tmin, int bounces, float weight, float indexOfRefraction, Hit &hit) const {
-    return Vec3f();
+Vec3f RayTracer::mirrorDirection(const Vec3f &normal, const Vec3f &incoming) {
+    Vec3f mirror_dir = incoming - 2 * normal.Dot3(incoming) * normal;
+    return mirror_dir;
+}
+
+bool RayTracer::transmittedDirection(const Vec3f &normal, const Vec3f &incoming, float index_i, float index_t,
+                                     Vec3f &transmitted) {
+    float cos_i = normal.Dot3(incoming);
+    float sin_t2 = index_i / index_t * index_i / index_t * (1 - cos_i * cos_i);
+    if (sin_t2 < 1) {
+        float cos_t = sqrt(1 - sin_t2);
+        transmitted = (index_i / index_t) * (incoming - cos_i * normal) - cos_t * normal;
+        return true;
+    }
+
+    return false;
+}
+
+Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, float indexOfRefraction, Hit &hit) const {
+    Group *group = scene_parser->getGroup();
+    Vec3f ambient_light = scene_parser->getAmbientLight();
+    Vec3f background_color = scene_parser->getBackgroundColor();
+    int light_num = scene_parser->getNumLights();
+
+    if (bounces > input_parser->max_bounces || weight < input_parser->cutoff_weight) {
+        return {0, 0, 0};
+    }
+
+    group->intersect(ray, hit, t_min);
+
+    Material *material_ptr = hit.getMaterial();
+    Vec3f color;
+    if (material_ptr != nullptr) {
+        Vec3f object_color = material_ptr->getDiffuseColor();
+        color = ambient_light * object_color;
+
+        Vec3f normal = hit.getNormal();
+        Vec3f intersect = hit.getIntersectionPoint();
+        Vec3f ray_dir = ray.getDirection();
+
+        // enable back face shading
+        bool back_face = normal.Dot3(ray.getDirection()) > 0;
+        if (back_face) {
+            if (input_parser->shade_back) {
+                normal.Negate();
+                hit.set(hit.getT(), hit.getMaterial(), normal, ray);
+            } else {
+                return BLACK;
+            }
+        }
+
+        float epsilon = 1e-5;
+        for (int k = 0; k < light_num; k++) {
+            Vec3f dir_to_light, light_color;
+            float dis_to_light;
+            scene_parser->getLight(k)->getIllumination(Vec3f(), dir_to_light, light_color, dis_to_light);
+
+            // generate shadows
+            if (input_parser->shadows) {
+                Ray ray_shadow(intersect, dir_to_light);
+                Hit hit_shadow;
+                if (group->intersect(ray_shadow, hit_shadow, epsilon)) {
+                    continue;
+                }
+            }
+
+            color += material_ptr->Shade(ray, hit, dir_to_light, light_color);
+        }
+
+        // generate reflection color
+        Vec3f reflected_color = material_ptr->getReflectiveColor();
+        if (material_ptr->getReflectiveColor() != Vec3f(0, 0, 0)) {
+            Vec3f dir_mirror = mirrorDirection(normal, ray_dir);
+            Ray ray_reflect(intersect, dir_mirror);
+            Hit hit_reflect;
+
+            color += reflected_color *
+                     traceRay(ray_reflect, epsilon, bounces + 1, weight * reflected_color.Length() / sqrtf(3),
+                              indexOfRefraction, hit_reflect);
+        }
+
+        // generate refraction color
+        Vec3f refracted_color = material_ptr->getTransparentColor();
+        if (material_ptr->getTransparentColor() != Vec3f(0, 0, 0)) {
+            float max_indexOfRefraction = back_face ? 1.0f : indexOfRefraction;
+            Vec3f dir_transmit;
+            bool is_transmitted = transmittedDirection(normal, ray_dir, indexOfRefraction, max_indexOfRefraction,
+                                                       dir_transmit);
+
+            if (is_transmitted) {
+                Ray ray_refract(intersect, dir_transmit);
+                Hit hit_refract;
+
+                color += refracted_color *
+                         traceRay(ray_refract, epsilon, bounces + 1, weight * refracted_color.Length() / sqrtf(3),
+                                  max_indexOfRefraction, hit_refract);
+            }
+        }
+    } else {
+        color = background_color;
+    }
+
+    return color;
 }
 
 

@@ -23,6 +23,14 @@ public:
 
     Vec3f getDiffuseColor() const;
 
+    virtual Vec3f getSpecularColor() const = 0;
+
+    virtual Vec3f getReflectiveColor() const = 0;
+
+    virtual Vec3f getTransparentColor() const = 0;
+
+    virtual float getIndexOfRefraction() const = 0;
+
     virtual ~Material();
 
 protected:
@@ -32,23 +40,20 @@ protected:
 
 class PhongMaterial : public virtual Material {
 public:
-    PhongMaterial(const Vec3f &diffuseColor, const Vec3f &specularColor, float exponent, const Vec3f &reflectiveColor,
-                  const Vec3f &transparentColor, float indexOfRefraction);
+    PhongMaterial(const Vec3f &diffuse, const Vec3f &specular, float e, const Vec3f &reflective,
+                  const Vec3f &transparent, float refraction);
 
     Vec3f Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const override;
 
-    Vec3f mirrorDirection(const Vec3f &normal, const Vec3f &incoming);
-
-    bool
-    transmittedDirection(const Vec3f &normal, const Vec3f &incoming, float index_i, float index_t, Vec3f &transmitted);
-
     void glSetMaterial() const override;
 
-    Vec3f getSpecularColor() const;
+    Vec3f getSpecularColor() const override;
 
-    Vec3f getReflectiveColor() const;
+    Vec3f getReflectiveColor() const override;
 
-    Vec3f getTransparentColor() const;
+    Vec3f getTransparentColor() const override;
+
+    float getIndexOfRefraction() const override;
 
     ~PhongMaterial() override;
 
