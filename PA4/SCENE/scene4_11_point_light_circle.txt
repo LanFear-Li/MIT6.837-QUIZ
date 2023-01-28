@@ -9,8 +9,8 @@ Lights {
     numLights 1
     PointLight {
         position 0 2.5 0 
-	color 0.8 0.8 0.8
-	attenuation 1 0 0
+        color 0.8 0.8 0.8
+        attenuation 1 0 0
     }
 }
 
@@ -45,22 +45,22 @@ Group {
     MaterialIndex 0
     Plane {
         normal 0 1 0 
-	offset -1
+        offset -1
     }
 
     MaterialIndex 1
     Transform {
         Translate  0 0 -3 
         TriangleMesh {
-       	    obj_file cube.obj
-	}
+       	    obj_file ../MODEL/cube.obj
+        }
     }
 
     Transform {
         Translate  0 0 3 
-	Sphere {
-	     center 0 0 0
-	     radius 1
+        Sphere {
+             center 0 0 0
+             radius 1
         }
     }
 
@@ -69,16 +69,16 @@ Group {
         YRotate  60 
         Translate  0 0 -3 
         TriangleMesh {
-       	    obj_file cube.obj
-	}
+       	    obj_file ../MODEL/cube.obj
+        }
     }
 
     Transform {
         YRotate  60 
         Translate  0 0 3 
-	Sphere {
-	     center 0 0 0
-	     radius 1
+        Sphere {
+             center 0 0 0
+             radius 1
         }
     }
 
@@ -88,16 +88,16 @@ Group {
         YRotate  -60 
         Translate  0 0 -3 
         TriangleMesh {
-       	    obj_file cube.obj
-	}
+       	    obj_file ../MODEL/cube.obj
+        }
     }
 
     Transform {
         YRotate  -60 
         Translate  0 0 3 
-	Sphere {
-	     center 0 0 0
-	     radius 1
+        Sphere {
+             center 0 0 0
+             radius 1
         }
     }
 

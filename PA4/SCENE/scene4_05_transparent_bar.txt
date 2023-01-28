@@ -9,7 +9,7 @@ Lights {
     numLights 1
     DirectionalLight {
         direction 0. -1 -1
-	color 0.8 0.8 0.8
+        color 0.8 0.8 0.8
     }
 }
 
@@ -27,9 +27,9 @@ Materials {
 
     PhongMaterial {
         diffuseColor 0.3 0.3 0.3
-	reflectiveColor 0.5 0.5 0.9
-	transparentColor 0.5 0.9 0.9
-	indexOfRefraction 4
+        reflectiveColor 0.5 0.5 0.9
+        transparentColor 0.5 0.9 0.9
+        indexOfRefraction 4
     }
 }
 
@@ -39,14 +39,14 @@ Group {
     MaterialIndex 0
     Plane {
         normal 0 1 0
-	offset -1
+        offset -1
     }
 
     MaterialIndex 1
     Transform {
         Scale  2.2 0.35 0.5 
         TriangleMesh {
-            obj_file cube.obj
+            obj_file ../MODEL/cube.obj
         }
     }
 }
