@@ -9,6 +9,7 @@
 #include "image.h"
 #include "camera.h"
 #include "light.h"
+#include "rayTree.h"
 
 extern const Vec3f BLACK;
 extern const Vec3f WHITE;

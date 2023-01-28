@@ -61,9 +61,9 @@ Vec3f Sphere::sphere_loc(float theta, float phi) const {
 void Sphere::paint() {
     material_ptr->glSetMaterial();
 
-    InputParser input_parser = *ray_tracer.input_parser;
-    bool gouraud = input_parser.gouraud;
-    float num_theta = input_parser.num_theta, num_phi = input_parser.num_phi;
+    InputParser *input_parser = ray_tracer.input_parser;
+    bool gouraud = input_parser->gouraud;
+    float num_theta = input_parser->num_theta, num_phi = input_parser->num_phi;
     float step_theta = M_PI * 2.0f / num_theta;
     float step_phi = M_PI * 1.0f / num_phi;
 
@@ -148,7 +148,7 @@ Group::~Group() {
 
 void Group::paint() {
     for (int i = 0; i < num_objects; i++) {
-        cout << "painting..." << endl;
+        cout << "Group painting: [" << i << "]" << endl;
         object3D_ptr[i]->paint();
     }
 }
@@ -181,23 +181,25 @@ bool Plane::intersect(const Ray &r, Hit &h, float t_min) {
 
 void Plane::paint() {
     // calculate plane basis vector
-    Vec3f basis_x(1, 0, 0);
-    if (normal.Dot3(basis_x) == 0) {
-        basis_x.Set(0, 1, 0);
+    Vec3f v(1, 0, 0);
+    float epsilon = 1e-5;
+    if (fabs(this->normal.y()) < epsilon && fabs(this->normal.z()) < epsilon) {
+        v.Set(0, 1, 0);
     }
 
-    Vec3f basis_y;
-    Vec3f::Cross3(basis_y, normal, basis_x);
+    Vec3f basis_x, basis_y;
+    Vec3f::Cross3(basis_x, v, this->normal);
+    Vec3f::Cross3(basis_y, this->normal, basis_x);
 
-    float MAX_LIMIT = 1e6;
-    Vec3f a = basis_x * -MAX_LIMIT + basis_y * -MAX_LIMIT;
-    Vec3f b = basis_x * -MAX_LIMIT + basis_y * MAX_LIMIT;
-    Vec3f c = basis_x * MAX_LIMIT + basis_y * MAX_LIMIT;
-    Vec3f d = basis_x * -MAX_LIMIT + basis_y * MAX_LIMIT;
+    float MAX_LIMIT = 1e4;
+    Vec3f a = basis_x * MAX_LIMIT + this->normal * distance;
+    Vec3f b = basis_y * MAX_LIMIT + this->normal * distance;
+    Vec3f c = basis_x * -MAX_LIMIT + this->normal * distance;
+    Vec3f d = basis_y * -MAX_LIMIT + this->normal * distance;
 
-    material_ptr->glSetMaterial();
+    this->material_ptr->glSetMaterial();
     glBegin(GL_QUADS);
-    glNormal3f(normal.x(), normal.y(), normal.z());
+    glNormal3f(this->normal.x(), this->normal.y(), this->normal.z());
     glVertex3f(a.x(), a.y(), a.z());
     glVertex3f(b.x(), b.y(), b.z());
     glVertex3f(c.x(), c.y(), c.z());

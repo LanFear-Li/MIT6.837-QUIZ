@@ -8,6 +8,9 @@ Camera::~Camera() = default;
 OrthographicCamera::OrthographicCamera(Vec3f c, Vec3f d, Vec3f u, float s) {
     Vec3f h;
 
+    origin_up = u;
+    origin_up.Normalize();
+
     d.Normalize();
     Vec3f::Cross3(h, d, u);
     h.Normalize();
@@ -67,12 +70,6 @@ void OrthographicCamera::glPlaceCamera(void) {
 
 void OrthographicCamera::dollyCamera(float dist) {
     center += direction * dist;
-
-    // ===========================================
-    // ASSIGNMENT 3: Fix any other affected values
-    // ===========================================
-
-
 }
 
 // ====================================================================
@@ -84,12 +81,6 @@ void OrthographicCamera::truckCamera(float dx, float dy) {
     Vec3f::Cross3(screenUp, horizontal, direction);
 
     center += horizontal * dx + screenUp * dy;
-
-    // ===========================================
-    // ASSIGNMENT 3: Fix any other affected values
-    // ===========================================
-
-
 }
 
 // ====================================================================
@@ -97,29 +88,24 @@ void OrthographicCamera::truckCamera(float dx, float dy) {
 // ====================================================================
 
 void OrthographicCamera::rotateCamera(float rx, float ry) {
-    Vec3f horizontal;
-    Vec3f::Cross3(horizontal, direction, up);
-    horizontal.Normalize();
-
     // Don't let the model flip upside-down (There is a singularity
     // at the poles when 'up' and 'direction' are aligned)
-    float tiltAngle = acos(up.Dot3(direction));
+    float tiltAngle = acos(origin_up.Dot3(direction));
     if (tiltAngle - ry > 3.13)
         ry = tiltAngle - 3.13;
     else if (tiltAngle - ry < 0.01)
         ry = tiltAngle - 0.01;
 
-    Matrix rotMat = Matrix::MakeAxisRotation(up, rx);
+    Matrix rotMat = Matrix::MakeAxisRotation(origin_up, rx);
     rotMat *= Matrix::MakeAxisRotation(horizontal, ry);
 
     rotMat.Transform(center);
     rotMat.TransformDirection(direction);
 
-    // ===========================================
-    // ASSIGNMENT 3: Fix any other affected values
-    // ===========================================
-
-
+    Vec3f::Cross3(horizontal, direction, origin_up);
+    horizontal.Normalize();
+    Vec3f::Cross3(up, horizontal, direction);
+    up.Normalize();
 }
 
 Ray OrthographicCamera::generateRay(Vec2f point) {
@@ -139,8 +125,11 @@ float OrthographicCamera::getTMin() const {
 OrthographicCamera::~OrthographicCamera() = default;
 
 
-PerspectiveCamera::PerspectiveCamera(Vec3f &c, Vec3f &d, Vec3f &u, float fov) {
+PerspectiveCamera::PerspectiveCamera(Vec3f &c, Vec3f &d, Vec3f &u, float fov_angle) {
     Vec3f h;
+
+    origin_up = u;
+    origin_up.Normalize();
 
     d.Normalize();
     Vec3f::Cross3(h, d, u);
@@ -153,7 +142,7 @@ PerspectiveCamera::PerspectiveCamera(Vec3f &c, Vec3f &d, Vec3f &u, float fov) {
     up = u;
     horizontal = h;
 
-    fov = fov;
+    fov = fov_angle;
     near = 1.0f / (2 * tan(fov / 2));
 }
 
@@ -197,12 +186,6 @@ void PerspectiveCamera::glPlaceCamera(void) {
 
 void PerspectiveCamera::dollyCamera(float dist) {
     center += direction * dist;
-
-    // ===========================================
-    // ASSIGNMENT 3: Fix any other affected values
-    // ===========================================
-
-
 }
 
 // ====================================================================
@@ -218,12 +201,6 @@ void PerspectiveCamera::truckCamera(float dx, float dy) {
     Vec3f::Cross3(screenUp, horizontal, direction);
 
     center += horizontal * dx + screenUp * dy;
-
-    // ===========================================
-    // ASSIGNMENT 3: Fix any other affected values
-    // ===========================================
-
-
 }
 
 // ====================================================================
@@ -231,30 +208,25 @@ void PerspectiveCamera::truckCamera(float dx, float dy) {
 // ====================================================================
 
 void PerspectiveCamera::rotateCamera(float rx, float ry) {
-    Vec3f horizontal;
-    Vec3f::Cross3(horizontal, direction, up);
-    horizontal.Normalize();
-
     // Don't let the model flip upside-down (There is a singularity
     // at the poles when 'up' and 'direction' are aligned)
-    float tiltAngle = acos(up.Dot3(direction));
+    float tiltAngle = acos(origin_up.Dot3(direction));
     if (tiltAngle - ry > 3.13)
         ry = tiltAngle - 3.13;
     else if (tiltAngle - ry < 0.01)
         ry = tiltAngle - 0.01;
 
-    Matrix rotMat = Matrix::MakeAxisRotation(up, rx);
+    Matrix rotMat = Matrix::MakeAxisRotation(origin_up, rx);
     rotMat *= Matrix::MakeAxisRotation(horizontal, ry);
 
     rotMat.Transform(center);
     rotMat.TransformDirection(direction);
     direction.Normalize();
 
-    // ===========================================
-    // ASSIGNMENT 3: Fix any other affected values
-    // ===========================================
-
-
+    Vec3f::Cross3(horizontal, direction, origin_up);
+    horizontal.Normalize();
+    Vec3f::Cross3(up, horizontal, direction);
+    up.Normalize();
 }
 
 Ray PerspectiveCamera::generateRay(Vec2f point) {

@@ -3,11 +3,12 @@
 #include "ray_tracer.h"
 
 const Vec3f BLACK(0, 0, 0);
-const Vec3f WHITE(255, 255, 255);
+const Vec3f WHITE(1, 1, 1);
 
 RayTracer ray_tracer;
 
 void render_magic() {
+    cout << "enter render_magic..." << endl;
     // set image size and background
     InputParser input_parser = *ray_tracer.input_parser;
     Image render_image(input_parser.width, input_parser.height);
@@ -29,12 +30,18 @@ void render_magic() {
 }
 
 void raytrace_magic(float x, float y) {
-    
+    cout << "enter raytrace_magic..." << endl;
+    auto *camera = ray_tracer.scene_parser->getCamera();
+    assert(camera != nullptr);
+    Vec2f p(x, y);
+    auto ray = camera->generateRay(p);
+    Hit hit;
+    ray_tracer.traceRay(ray, camera->getTMin(), 0, 1.f, 1.f, hit);
 }
 
 int main(int argc, char *argv[]) {
     // prepare input attributes and ray caster materials
-    std::cout << "initializing..." << std::endl;
+    std::cout << "raytracer initializing..." << std::endl;
     InputParser input_parser(argc, argv);
     SceneParser scene_parser(input_parser.input_file);
     ray_tracer.init(&input_parser, &scene_parser);

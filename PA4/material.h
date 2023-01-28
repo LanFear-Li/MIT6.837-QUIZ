@@ -5,11 +5,11 @@
 #include "ray_tracer.h"
 #include "glCanvas.h"
 
-// #ifdef SPECULAR_FIX
+ #ifdef SPECULAR_FIX
 // OPTIONAL:  global variable allows (hacky) communication
 // with glCanvas::display
-// extern int SPECULAR_FIX_WHICH_PASS;
-// #endif
+ extern int SPECULAR_FIX_WHICH_PASS;
+ #endif
 
 class Material {
 public:
@@ -35,7 +35,6 @@ public:
 
 protected:
     Vec3f diffuseColor;
-
 };
 
 class PhongMaterial : public virtual Material {

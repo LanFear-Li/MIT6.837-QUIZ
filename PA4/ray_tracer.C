@@ -25,8 +25,6 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
     Vec3f ambient_color = scene_parser->getAmbientLight();
 
     int width = output_image.Width(), height = output_image.Height();
-    int bounces = input_parser->max_bounces;
-    float weight = input_parser->cutoff_weight;
     float depth_min = input_parser->depth_min;
     float depth_max = input_parser->depth_max;
 
@@ -40,7 +38,7 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
             Ray ray = camera->generateRay(Vec2f(u, v));
 
             // phong model with ray tracing
-            Vec3f render_color = traceRay(ray, camera->getTMin(), bounces, weight, 1.0f, hit);
+            Vec3f render_color = traceRay(ray, camera->getTMin(), 0, 1.0f, 1.0f, hit);
             output_image.SetPixel(i, j, render_color);
 
             float t = hit.getT();
@@ -65,12 +63,13 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
 
 Vec3f RayTracer::mirrorDirection(const Vec3f &normal, const Vec3f &incoming) {
     Vec3f mirror_dir = incoming - 2 * normal.Dot3(incoming) * normal;
+    mirror_dir.Normalize();
     return mirror_dir;
 }
 
 bool RayTracer::transmittedDirection(const Vec3f &normal, const Vec3f &incoming, float index_i, float index_t,
                                      Vec3f &transmitted) {
-    float cos_i = normal.Dot3(incoming);
+    /*float cos_i = normal.Dot3(incoming);
     float sin_t2 = index_i / index_t * index_i / index_t * (1 - cos_i * cos_i);
     if (sin_t2 < 1) {
         float cos_t = sqrt(1 - sin_t2);
@@ -78,7 +77,17 @@ bool RayTracer::transmittedDirection(const Vec3f &normal, const Vec3f &incoming,
         return true;
     }
 
-    return false;
+    return false;*/
+
+    auto i = incoming;
+    i.Negate();
+    auto eta = index_i / index_t;
+    auto cosThetaTSquare = 1.f - eta * eta * (1.f - normal.Dot3(i) * normal.Dot3(i));
+    if (cosThetaTSquare < 0.f)
+        return false;
+    transmitted = (eta * (normal.Dot3(i)) - sqrtf(cosThetaTSquare)) * normal - eta * i;
+    transmitted.Normalize();
+    return true;
 }
 
 Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, float indexOfRefraction, Hit &hit) const {
@@ -114,6 +123,9 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
             }
         }
 
+        if (bounces == 0)
+            RayTree::SetMainSegment(ray, 0, hit.getT());
+
         float epsilon = 1e-5;
         for (int k = 0; k < light_num; k++) {
             Vec3f dir_to_light, light_color;
@@ -125,7 +137,10 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
                 Ray ray_shadow(intersect, dir_to_light);
                 Hit hit_shadow;
                 if (group->intersect(ray_shadow, hit_shadow, epsilon)) {
+                    RayTree::AddShadowSegment(ray_shadow, 0, hit_shadow.getT());
                     continue;
+                } else {
+                    RayTree::AddShadowSegment(ray_shadow, 0, dis_to_light);
                 }
             }
 
@@ -142,6 +157,10 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
             color += reflected_color *
                      traceRay(ray_reflect, epsilon, bounces + 1, weight * reflected_color.Length() / sqrtf(3),
                               indexOfRefraction, hit_reflect);
+
+            if (bounces < input_parser->max_bounces) {
+                RayTree::AddReflectedSegment(ray_reflect, 0, hit_reflect.getT());
+            }
         }
 
         // generate refraction color
@@ -159,6 +178,10 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
                 color += refracted_color *
                          traceRay(ray_refract, epsilon, bounces + 1, weight * refracted_color.Length() / sqrtf(3),
                                   max_indexOfRefraction, hit_refract);
+
+                if (bounces < input_parser->max_bounces) {
+                    RayTree::AddTransmittedSegment(ray_refract, 0, hit_refract.getT());
+                }
             }
         }
     } else {

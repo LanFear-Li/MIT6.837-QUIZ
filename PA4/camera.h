@@ -52,7 +52,7 @@ public:
     Vec3f center;
 
     Vec3f direction;
-    Vec3f up;
+    Vec3f up, origin_up;
     Vec3f horizontal;
 
     // screen plane square size
@@ -61,7 +61,7 @@ public:
 
 class PerspectiveCamera : public virtual Camera {
 public:
-    PerspectiveCamera(Vec3f &center, Vec3f &direction, Vec3f &up, float fov);
+    PerspectiveCamera(Vec3f &center, Vec3f &direction, Vec3f &up, float fov_angle);
 
     void glInit(int w, int h) override;
 
@@ -84,7 +84,7 @@ public:
 
     // camera direction basis
     Vec3f direction;
-    Vec3f up;
+    Vec3f up, origin_up;
     Vec3f horizontal;
 
     // vertical field of view[FOV]
