@@ -179,19 +179,21 @@ bool Plane::intersect(const Ray &r, Hit &h, float t_min) {
 
 void Plane::paint() {
     // calculate plane basis vector
-    Vec3f basis_x(1, 0, 0);
-    if (this->normal.Dot3(basis_x) == 0) {
-        basis_x.Set(0, 1, 0);
+    Vec3f v(1, 0, 0);
+    float epsilon = 1e-5;
+    if (fabs(this->normal.y()) < epsilon && fabs(this->normal.z()) < epsilon) {
+        v.Set(0, 1, 0);
     }
 
-    Vec3f basis_y;
+    Vec3f basis_x, basis_y;
+    Vec3f::Cross3(basis_x, v, this->normal);
     Vec3f::Cross3(basis_y, this->normal, basis_x);
 
-    float MAX_LIMIT = 1e6;
-    Vec3f a = basis_x * -MAX_LIMIT + basis_y * -MAX_LIMIT;
-    Vec3f b = basis_x * -MAX_LIMIT + basis_y * MAX_LIMIT;
-    Vec3f c = basis_x * MAX_LIMIT + basis_y * MAX_LIMIT;
-    Vec3f d = basis_x * -MAX_LIMIT + basis_y * MAX_LIMIT;
+    float MAX_LIMIT = 1e4;
+    Vec3f a = basis_x * MAX_LIMIT + this->normal * distance;
+    Vec3f b = basis_y * MAX_LIMIT + this->normal * distance;
+    Vec3f c = basis_x * -MAX_LIMIT + this->normal * distance;
+    Vec3f d = basis_y * -MAX_LIMIT + this->normal * distance;
 
     this->material_ptr->glSetMaterial();
     glBegin(GL_QUADS);
