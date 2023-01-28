@@ -211,9 +211,9 @@ Plane::~Plane() = default;
 
 
 Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
-    a = a;
-    b = b;
-    c = c;
+    this->a = a;
+    this->b = b;
+    this->c = c;
 
     Vec3f n;
     Vec3f::Cross3(n, a - b, a - c);
