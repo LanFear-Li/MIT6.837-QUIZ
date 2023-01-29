@@ -73,8 +73,8 @@ bool RayTracer::transmittedDirection(const Vec3f &normal, const Vec3f &incoming,
     auto i = incoming;
     i.Negate();
     auto eta = index_i / index_t;
-    auto cosThetaTSquare = 1.f - eta * eta * (1.f - normal.Dot3(i) * normal.Dot3(i));
-    if (cosThetaTSquare < 0.f) {
+    auto cosThetaTSquare = 1.0f - eta * eta * (1.0f - normal.Dot3(i) * normal.Dot3(i));
+    if (cosThetaTSquare < 0.0f) {
         return false;
     }
 

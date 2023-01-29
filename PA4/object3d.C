@@ -28,7 +28,7 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
 
     // discriminant = 4(half_b * half_b - a * c)
     float discriminant = half_b * half_b - a * c;
-    if (discriminant < 0) {
+    if (discriminant < 0.0f) {
         return false;
     }
 
@@ -164,7 +164,8 @@ bool Plane::intersect(const Ray &r, Hit &h, float t_min) {
     Vec3f ori = r.getOrigin(), dir = r.getDirection();
 
     // ray parallel with plane
-    if (dir.Dot3(normal) == 0) {
+    float epsilon = 1e-5;
+    if (fabsf(dir.Dot3(normal)) < epsilon) {
         return false;
     }
 
@@ -191,7 +192,7 @@ void Plane::paint() {
     Vec3f::Cross3(basis_x, v, this->normal);
     Vec3f::Cross3(basis_y, this->normal, basis_x);
 
-    float MAX_LIMIT = 1e4;
+    float MAX_LIMIT = 1e6;
     Vec3f a = basis_x * MAX_LIMIT + this->normal * distance;
     Vec3f b = basis_y * MAX_LIMIT + this->normal * distance;
     Vec3f c = basis_x * -MAX_LIMIT + this->normal * distance;
@@ -227,38 +228,27 @@ bool Triangle::intersect(const Ray &r, Hit &h, float t_min) {
     Vec3f ori = r.getOrigin(), dir = r.getDirection();
 
     float dis = a.Dot3(normal);
+    Hit hit;
+    Plane plane(normal, dis, material_ptr);
+    if (plane.intersect(r, hit, t_min) && hit.getT() >= t_min) {
+        Vec3f p = hit.getIntersectionPoint();
 
-    // ray parallel with plane
-    if (dir.Dot3(normal) == 0) {
-        return false;
-    }
+        // use cross product to check whether inside the triangle
+        Vec3f ab = b - a, bc = c - b, ca = a - c;
+        Vec3f ap = p - a, bp = p - b, cp = p - c;
 
-    // (origin + t * direction) * normal = distance
-    float t = (dis - ori.Dot3(normal)) / (dir.Dot3(normal));
+        Vec3f cross;
+        Vec3f::Cross3(cross, ab, ap);
+        float cross_a = normal.Dot3(cross);
+        Vec3f::Cross3(cross, bc, bp);
+        float cross_b = normal.Dot3(cross);
+        Vec3f::Cross3(cross, ca, cp);
+        float cross_c = normal.Dot3(cross);
 
-    if (t < t_min) {
-        return false;
-    }
-
-    // get intersect point with the plane formed by triangle
-    Vec3f p = ori + dir * t;
-
-    // use cross product to check whether inside the triangle
-    Vec3f ab = b - a, bc = c - b, ca = a - c;
-    Vec3f ap = p - a, bp = p - b, cp = p - c;
-
-    Vec3f cross;
-    Vec3f::Cross3(cross, ab, ap);
-    float cross_a = normal.Dot3(cross);
-    Vec3f::Cross3(cross, bc, bp);
-    float cross_b = normal.Dot3(cross);
-    Vec3f::Cross3(cross, ca, cp);
-    float cross_c = normal.Dot3(cross);
-
-    // TODO: ray-triangle intersection with barycentric coordinate
-    if (cross_a > 0 && cross_b > 0 && cross_c > 0 || cross_a <= 0 && cross_b <= 0 && cross_c <= 0) {
-        h.set(t, material_ptr, normal, r);
-        return true;
+        if (cross_a > 0 && cross_b > 0 && cross_c > 0 || cross_a <= 0 && cross_b <= 0 && cross_c <= 0) {
+            h = hit;
+            return true;
+        }
     }
 
     return false;
