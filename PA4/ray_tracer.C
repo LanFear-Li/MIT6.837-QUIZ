@@ -62,6 +62,7 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
 }
 
 Vec3f RayTracer::mirrorDirection(const Vec3f &normal, const Vec3f &incoming) {
+    // in-ray is negative and in-ray + out-ray = normal * abs(in-ray * normal)
     Vec3f mirror_dir = incoming - 2 * normal.Dot3(incoming) * normal;
     mirror_dir.Normalize();
     return mirror_dir;
@@ -69,22 +70,14 @@ Vec3f RayTracer::mirrorDirection(const Vec3f &normal, const Vec3f &incoming) {
 
 bool RayTracer::transmittedDirection(const Vec3f &normal, const Vec3f &incoming, float index_i, float index_t,
                                      Vec3f &transmitted) {
-    /*float cos_i = normal.Dot3(incoming);
-    float sin_t2 = index_i / index_t * index_i / index_t * (1 - cos_i * cos_i);
-    if (sin_t2 < 1) {
-        float cos_t = sqrt(1 - sin_t2);
-        transmitted = (index_i / index_t) * (incoming - cos_i * normal) - cos_t * normal;
-        return true;
-    }
-
-    return false;*/
-
     auto i = incoming;
     i.Negate();
     auto eta = index_i / index_t;
     auto cosThetaTSquare = 1.f - eta * eta * (1.f - normal.Dot3(i) * normal.Dot3(i));
-    if (cosThetaTSquare < 0.f)
+    if (cosThetaTSquare < 0.f) {
         return false;
+    }
+
     transmitted = (eta * (normal.Dot3(i)) - sqrtf(cosThetaTSquare)) * normal - eta * i;
     transmitted.Normalize();
     return true;
@@ -100,11 +93,9 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
         return {0, 0, 0};
     }
 
-    group->intersect(ray, hit, t_min);
-
-    Material *material_ptr = hit.getMaterial();
     Vec3f color;
-    if (material_ptr != nullptr) {
+    if (group->intersect(ray, hit, t_min)) {
+        Material *material_ptr = hit.getMaterial();
         Vec3f object_color = material_ptr->getDiffuseColor();
         color = ambient_light * object_color;
 
@@ -113,7 +104,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
         Vec3f ray_dir = ray.getDirection();
 
         // enable back face shading
-        bool back_face = normal.Dot3(ray.getDirection()) > 0;
+        bool back_face = normal.Dot3(ray_dir) > 0;
         if (back_face) {
             if (input_parser->shade_back) {
                 normal.Negate();
@@ -123,20 +114,21 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
             }
         }
 
-        if (bounces == 0)
+        if (bounces == 0) {
             RayTree::SetMainSegment(ray, 0, hit.getT());
+        }
 
         float epsilon = 1e-5;
         for (int k = 0; k < light_num; k++) {
             Vec3f dir_to_light, light_color;
             float dis_to_light;
-            scene_parser->getLight(k)->getIllumination(Vec3f(), dir_to_light, light_color, dis_to_light);
+            scene_parser->getLight(k)->getIllumination(intersect, dir_to_light, light_color, dis_to_light);
 
             // generate shadows
             if (input_parser->shadows) {
                 Ray ray_shadow(intersect, dir_to_light);
                 Hit hit_shadow;
-                if (group->intersect(ray_shadow, hit_shadow, epsilon)) {
+                if (group->intersect(ray_shadow, hit_shadow, epsilon) && dis_to_light > hit_shadow.getT()) {
                     RayTree::AddShadowSegment(ray_shadow, 0, hit_shadow.getT());
                     continue;
                 } else {
@@ -149,8 +141,8 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
 
         // generate reflection color
         Vec3f reflected_color = material_ptr->getReflectiveColor();
-        if (material_ptr->getReflectiveColor() != Vec3f(0, 0, 0)) {
-            Vec3f dir_mirror = mirrorDirection(normal, ray_dir);
+        if (material_ptr->getReflectiveColor().Length() > epsilon) {
+            Vec3f dir_mirror = mirrorDirection(hit.getNormal(), ray.getDirection());
             Ray ray_reflect(intersect, dir_mirror);
             Hit hit_reflect;
 
@@ -165,11 +157,11 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
 
         // generate refraction color
         Vec3f refracted_color = material_ptr->getTransparentColor();
-        if (material_ptr->getTransparentColor() != Vec3f(0, 0, 0)) {
-            float max_indexOfRefraction = back_face ? 1.0f : indexOfRefraction;
+        if (material_ptr->getTransparentColor().Length() > epsilon) {
+            float max_indexOfRefraction = back_face ? 1.0f : material_ptr->getIndexOfRefraction();
             Vec3f dir_transmit;
-            bool is_transmitted = transmittedDirection(normal, ray_dir, indexOfRefraction, max_indexOfRefraction,
-                                                       dir_transmit);
+            bool is_transmitted = transmittedDirection(hit.getNormal(), ray.getDirection(), indexOfRefraction,
+                                                       max_indexOfRefraction, dir_transmit);
 
             if (is_transmitted) {
                 Ray ray_refract(intersect, dir_transmit);

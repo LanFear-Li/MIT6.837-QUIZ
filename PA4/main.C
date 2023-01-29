@@ -36,7 +36,7 @@ void raytrace_magic(float x, float y) {
     Vec2f p(x, y);
     auto ray = camera->generateRay(p);
     Hit hit;
-    ray_tracer.traceRay(ray, camera->getTMin(), 0, 1.f, 1.f, hit);
+    ray_tracer.traceRay(ray, camera->getTMin(), 0, 1.0f, 1.0f, hit);
 }
 
 int main(int argc, char *argv[]) {

@@ -143,7 +143,7 @@ PerspectiveCamera::PerspectiveCamera(Vec3f &c, Vec3f &d, Vec3f &u, float fov_ang
     horizontal = h;
 
     fov = fov_angle;
-    near = 1.0f / (2 * tan(fov / 2));
+    near = 2 * tan(fov / 2);
 }
 
 // ====================================================================
@@ -231,8 +231,8 @@ void PerspectiveCamera::rotateCamera(float rx, float ry) {
 
 Ray PerspectiveCamera::generateRay(Vec2f point) {
     point -= Vec2f(0.5f, 0.5f);
-    Vec3f screen_loc = center + direction * near;
-    screen_loc += point.x() * horizontal + point.y() * up;
+    Vec3f screen_loc = center + direction;
+    screen_loc += (point.x() * horizontal + point.y() * up) * near;
 
     Vec3f origin = center;
     Vec3f ray_dir = screen_loc - center;
