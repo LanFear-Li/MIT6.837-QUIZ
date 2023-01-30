@@ -11,6 +11,10 @@
 #include "boundingbox.h"
 #include "input_parser.h"
 
+enum ObjectType{
+    GRID, SPHERE, PLANE, TRIANGLE, GROUP
+};
+
 class Object3D {
 public:
     Object3D();
@@ -21,13 +25,17 @@ public:
 
     virtual void insertIntoGrid(Grid *g, Matrix *m) = 0;
 
-    BoundingBox *getBoundingBox();
+    Material *getMaterial() const;
+
+    BoundingBox *getBoundingBox() const;
 
     ~Object3D();
 
     Material *material_ptr{};
 
     BoundingBox *bbox_ptr{};
+
+    ObjectType object_type{};
 };
 
 class Grid : public virtual Object3D {
@@ -43,6 +51,8 @@ public:
     ~Grid();
 
     int nx, ny, nz;
+
+    bool *cell_state;
 };
 
 class Sphere : public virtual Object3D {
@@ -56,8 +66,6 @@ public:
     void insertIntoGrid(Grid *g, Matrix *m) override;
 
     Vec3f sphere_loc(float theta, float phi) const;
-
-    ~Sphere();
 
     Vec3f center;
 
@@ -74,8 +82,6 @@ public:
 
     void insertIntoGrid(Grid *g, Matrix *m) override;
 
-    ~Plane();
-
     Vec3f normal;
 
     // all point P on plane satisfy: P * n = d
@@ -91,8 +97,6 @@ public:
     void paint() override;
 
     void insertIntoGrid(Grid *g, Matrix *m) override;
-
-    ~Triangle();
 
     Vec3f a, b ,c;
     Vec3f normal;

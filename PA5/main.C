@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     if (input_parser.gui) {
         glutInit(&argc, argv);
         GLCanvas gl_canvas;
-        gl_canvas.initialize(ray_tracer.scene_parser, render_magic, raytrace_magic);
+        gl_canvas.initialize(ray_tracer.scene_parser, render_magic, raytrace_magic, input_parser.visualize_grid);
     } else {
         render_magic();
     }

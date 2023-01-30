@@ -4,12 +4,19 @@ extern RayTracer ray_tracer;
 
 Object3D::Object3D() = default;
 
-BoundingBox* Object3D::getBoundingBox() {
+Material* Object3D::getMaterial() const {
+    return material_ptr;
+}
+
+BoundingBox* Object3D::getBoundingBox() const {
     return bbox_ptr;
 }
 
 
-Object3D::~Object3D() = default;
+Object3D::~Object3D() {
+    delete material_ptr;
+    delete bbox_ptr;
+}
 
 
 Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
@@ -17,6 +24,10 @@ Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
     this->nx = nx;
     this->ny = ny;
     this->nz = nz;
+
+    object_type = GRID;
+
+    cell_state = new bool[nx * ny * nz];
 }
 
 bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
@@ -32,7 +43,7 @@ void Grid::paint() {
 }
 
 Grid::~Grid() {
-
+    delete cell_state;
 }
 
 
@@ -40,6 +51,14 @@ Sphere::Sphere(Vec3f c, float r, Material *m) {
     center = c;
     radius = r;
     material_ptr = m;
+
+    object_type = SPHERE;
+
+    // set bbox for sphere
+    Vec3f minn = c - Vec3f(r, r, r);
+    Vec3f maxn = c + Vec3f(r, r, r);
+    bbox_ptr = new BoundingBox(minn, maxn);
+    bbox_ptr->Print();
 }
 
 bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
@@ -79,7 +98,7 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
 }
 
 void Sphere::insertIntoGrid(Grid *g, Matrix *m) {
-
+    // TODO: sphere insert into grid
 }
 
 Vec3f Sphere::sphere_loc(float theta, float phi) const {
@@ -140,61 +159,16 @@ void Sphere::paint() {
     glEnd();
 }
 
-Sphere::~Sphere() = default;
-
-
-Group::Group(int num) {
-    num_objects = num;
-    object3D_ptr = new Object3D *[num];
-}
-
-bool Group::intersect(const Ray &r, Hit &h, float t_min) {
-    h = Hit(std::numeric_limits<float>::max(), nullptr, Vec3f());
-    bool intersected = false;
-
-    for (int i = 0; i < num_objects; i++) {
-        Hit cur_hit;
-        if (object3D_ptr[i]->intersect(r, cur_hit, t_min)) {
-            if (cur_hit.getT() < h.getT()) {
-                h = cur_hit;
-            }
-
-            intersected = true;
-        }
-    }
-
-    return intersected;
-}
-
-void Group::addObject(int index, Object3D *obj) {
-    assert(index >= 0 && index < num_objects);
-    object3D_ptr[index] = obj;
-}
-
-Group::~Group() {
-    /*for (int i = 0; i < num_objects; i++) {
-        delete object3D_ptr[i];
-    }
-
-    delete object3D_ptr;*/
-}
-
-void Group::paint() {
-    for (int i = 0; i < num_objects; i++) {
-        cout << "Group painting: [" << i << "]" << endl;
-        object3D_ptr[i]->paint();
-    }
-}
-
-void Group::insertIntoGrid(Grid *g, Matrix *m) {
-
-}
-
 
 Plane::Plane(Vec3f &n, float d, Material *m) {
     normal = n;
     distance = d;
     material_ptr = m;
+
+    object_type = PLANE;
+
+    // plane has infinite bbox
+    bbox_ptr = nullptr;
 }
 
 bool Plane::intersect(const Ray &r, Hit &h, float t_min) {
@@ -249,8 +223,6 @@ void Plane::insertIntoGrid(Grid *g, Matrix *m) {
 
 }
 
-Plane::~Plane() = default;
-
 
 Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     this->a = a;
@@ -263,6 +235,24 @@ Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     normal = n;
 
     material_ptr = m;
+
+    object_type = TRIANGLE;
+
+    // set bbox for triangle
+    Vec3f minn, maxn;
+    float x, y, z;
+
+    x = min(a.x(), min(b.x(), c.x()));
+    y = min(a.y(), min(b.y(), c.y()));
+    z = min(a.z(), min(b.z(), c.z()));
+    minn.Set(x, y, z);
+    x = max(a.x(), max(b.x(), c.x()));
+    y = max(a.y(), max(b.y(), c.y()));
+    z = max(a.z(), max(b.z(), c.z()));
+    maxn.Set(x, y, z);
+
+    bbox_ptr = new BoundingBox(minn, maxn);
+    bbox_ptr->Print();
 }
 
 bool Triangle::intersect(const Ray &r, Hit &h, float t_min) {
@@ -310,7 +300,75 @@ void Triangle::insertIntoGrid(Grid *g, Matrix *m) {
 
 }
 
-Triangle::~Triangle() = default;
+
+Group::Group(int num) {
+    num_objects = num;
+    object3D_ptr = new Object3D *[num];
+
+    object_type = GROUP;
+}
+
+bool Group::intersect(const Ray &r, Hit &h, float t_min) {
+    h = Hit(std::numeric_limits<float>::max(), nullptr, Vec3f());
+    bool intersected = false;
+
+    for (int i = 0; i < num_objects; i++) {
+        Hit cur_hit;
+        if (object3D_ptr[i]->intersect(r, cur_hit, t_min)) {
+            if (cur_hit.getT() < h.getT()) {
+                h = cur_hit;
+            }
+
+            intersected = true;
+        }
+    }
+
+    return intersected;
+}
+
+void Group::addObject(int index, Object3D *obj) {
+    assert(index >= 0 && index < num_objects);
+    object3D_ptr[index] = obj;
+
+    // set bbox for group
+    if (index == num_objects - 1) {
+        Vec3f minn, maxn;
+
+        for (int i = 0; i < num_objects; i++) {
+            if (object3D_ptr[i]->object_type == PLANE) {
+                continue;
+            }
+
+            Vec3f cur_min, cur_max;
+            object3D_ptr[i]->getBoundingBox()->Get(cur_min, cur_max);
+
+            Vec3f::Min(minn, minn, cur_min);
+            Vec3f::Max(maxn, maxn, cur_max);
+        }
+
+        bbox_ptr = new BoundingBox(minn, maxn);
+        bbox_ptr->Print();
+    }
+}
+
+Group::~Group() {
+    /*for (int i = 0; i < num_objects; i++) {
+        delete object3D_ptr[i];
+    }
+
+    delete object3D_ptr;*/
+}
+
+void Group::paint() {
+    for (int i = 0; i < num_objects; i++) {
+        cout << "Group painting: [" << i << "]" << endl;
+        object3D_ptr[i]->paint();
+    }
+}
+
+void Group::insertIntoGrid(Grid *g, Matrix *m) {
+
+}
 
 
 Transform::Transform(Matrix &m, Object3D *o) {
@@ -326,6 +384,12 @@ Transform::Transform(Matrix &m, Object3D *o) {
     mat_trans_inv.Transpose();
 
     object3d_ptr = o;
+
+    // TODO: set bbox for transform
+    Vec3f minn, maxn;
+    o->bbox_ptr->Get(minn, maxn);
+    bbox_ptr = new BoundingBox(minn, maxn);
+    bbox_ptr->Print();
 }
 
 bool Transform::intersect(const Ray &r, Hit &h, float t_min) {

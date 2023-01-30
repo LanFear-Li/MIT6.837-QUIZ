@@ -1,6 +1,9 @@
 #ifndef _BOUNDING_BOX_H_
 #define _BOUNDING_BOX_H_
 
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include "vectors.h"
 
 #include <assert.h>
