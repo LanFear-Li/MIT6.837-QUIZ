@@ -52,6 +52,10 @@ public:
 
     int nx, ny, nz;
 
+    Vec3f step;
+
+    Vec3f  minn, maxn;
+
     bool *cell_state;
 };
 

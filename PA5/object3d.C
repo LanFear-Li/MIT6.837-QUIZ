@@ -27,7 +27,11 @@ Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
 
     object_type = GRID;
 
+    minn = bb->getMin();
+    maxn = bb->getMax();
+
     cell_state = new bool[nx * ny * nz];
+    step = (maxn - minn) * Vec3f(1.0f / nx, 1.0f / ny, 1.0f / nz);
 }
 
 bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
@@ -98,7 +102,19 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
 }
 
 void Sphere::insertIntoGrid(Grid *g, Matrix *m) {
-    // TODO: sphere insert into grid
+    int nx = g->nx;
+    int ny = g->ny;
+    int nz = g->nz;
+    Vec3f minn = g->minn, maxn = g->maxn;
+    Vec3f step = g->step;
+
+    for (int i = 0; i < nx; i++) {
+        for (int j = 0; j < ny; j++) {
+            for (int k = 0; k < nz; k++) {
+                
+            }
+        }
+    }
 }
 
 Vec3f Sphere::sphere_loc(float theta, float phi) const {
@@ -239,19 +255,9 @@ Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     object_type = TRIANGLE;
 
     // set bbox for triangle
-    Vec3f minn, maxn;
-    float x, y, z;
-
-    x = min(a.x(), min(b.x(), c.x()));
-    y = min(a.y(), min(b.y(), c.y()));
-    z = min(a.z(), min(b.z(), c.z()));
-    minn.Set(x, y, z);
-    x = max(a.x(), max(b.x(), c.x()));
-    y = max(a.y(), max(b.y(), c.y()));
-    z = max(a.z(), max(b.z(), c.z()));
-    maxn.Set(x, y, z);
-
-    bbox_ptr = new BoundingBox(minn, maxn);
+    bbox_ptr = new BoundingBox(a, a);
+    bbox_ptr->Extend(b);
+    bbox_ptr->Extend(c);
     bbox_ptr->Print();
 }
 
@@ -306,6 +312,10 @@ Group::Group(int num) {
     object3D_ptr = new Object3D *[num];
 
     object_type = GROUP;
+
+    float maxn = std::numeric_limits<float>::max();
+    float minn = std::numeric_limits<float>::lowest();
+    bbox_ptr = new BoundingBox(Vec3f(maxn, maxn, maxn), Vec3f(minn, minn, minn));
 }
 
 bool Group::intersect(const Ray &r, Hit &h, float t_min) {
@@ -331,23 +341,8 @@ void Group::addObject(int index, Object3D *obj) {
     object3D_ptr[index] = obj;
 
     // set bbox for group
-    if (index == num_objects - 1) {
-        Vec3f minn, maxn;
-
-        for (int i = 0; i < num_objects; i++) {
-            if (object3D_ptr[i]->object_type == PLANE) {
-                continue;
-            }
-
-            Vec3f cur_min, cur_max;
-            object3D_ptr[i]->getBoundingBox()->Get(cur_min, cur_max);
-
-            Vec3f::Min(minn, minn, cur_min);
-            Vec3f::Max(maxn, maxn, cur_max);
-        }
-
-        bbox_ptr = new BoundingBox(minn, maxn);
-        bbox_ptr->Print();
+    if (object3D_ptr[index]->object_type != PLANE) {
+        bbox_ptr->Extend(object3D_ptr[index]->getBoundingBox());
     }
 }
 
@@ -367,7 +362,9 @@ void Group::paint() {
 }
 
 void Group::insertIntoGrid(Grid *g, Matrix *m) {
-
+    for (int i = 0; i < num_objects; i++) {
+        object3D_ptr[i]->insertIntoGrid(g, m);
+    }
 }
 
 
@@ -385,10 +382,37 @@ Transform::Transform(Matrix &m, Object3D *o) {
 
     object3d_ptr = o;
 
-    // TODO: set bbox for transform
+    // set bbox for transform
     Vec3f minn, maxn;
     o->bbox_ptr->Get(minn, maxn);
-    bbox_ptr = new BoundingBox(minn, maxn);
+
+    // get transformed bbox
+    Vec3f p0(minn.x(), minn.y(), minn.z());
+    Vec3f p1(maxn.x(), minn.y(), minn.z());
+    Vec3f p2(minn.x(), maxn.y(), minn.z());
+    Vec3f p3(maxn.x(), maxn.y(), minn.z());
+    Vec3f p4(maxn.x(), minn.y(), maxn.z());
+    Vec3f p5(maxn.x(), minn.y(), maxn.z());
+    Vec3f p6(minn.x(), maxn.y(), maxn.z());
+    Vec3f p7(maxn.x(), maxn.y(), maxn.z());
+
+    mat.Transform(p0);
+    mat.Transform(p1);
+    mat.Transform(p2);
+    mat.Transform(p3);
+    mat.Transform(p4);
+    mat.Transform(p5);
+    mat.Transform(p6);
+    mat.Transform(p7);
+
+    bbox_ptr = new BoundingBox(p0, p0);
+    bbox_ptr->Extend(p1);
+    bbox_ptr->Extend(p2);
+    bbox_ptr->Extend(p3);
+    bbox_ptr->Extend(p4);
+    bbox_ptr->Extend(p5);
+    bbox_ptr->Extend(p6);
+    bbox_ptr->Extend(p7);
     bbox_ptr->Print();
 }
 
