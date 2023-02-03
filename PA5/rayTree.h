@@ -1,9 +1,9 @@
 #ifndef _RAY_TREE_H
 #define _RAY_TREE_H
 
-#include "ray.h"
 #include <GL/gl.h>
 
+#include "ray.h"
 #include "material.h"
 
 // ====================================================================
@@ -107,7 +107,7 @@ public:
   ~CellFace() {}
 
   void paint() {
-    material->glSetMaterial();
+    // material->glSetMaterial();
     glNormal3f(normal.x(),normal.y(),normal.z());
     glBegin(GL_QUADS);
     glVertex3f(a.x(),a.y(),a.z());

@@ -34,6 +34,7 @@ public:
     int nx{};
     int ny{};
     int nz{};
+    bool with_grid = false;
     bool visualize_grid = false;
 };
 

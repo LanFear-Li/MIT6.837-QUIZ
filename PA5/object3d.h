@@ -3,6 +3,7 @@
 
 #include <limits>
 #include <GL/gl.h>
+#include <vector>
 
 #include "ray.h"
 #include "hit.h"
@@ -11,7 +12,7 @@
 #include "boundingbox.h"
 #include "input_parser.h"
 
-enum ObjectType{
+enum ObjectType {
     GRID, SPHERE, PLANE, TRIANGLE, GROUP
 };
 
@@ -54,9 +55,9 @@ public:
 
     Vec3f step;
 
-    Vec3f  minn, maxn;
+    Vec3f minn, maxn;
 
-    bool *cell_state;
+    vector<vector<vector<bool>>> cell_state;
 };
 
 class Sphere : public virtual Object3D {
@@ -102,7 +103,7 @@ public:
 
     void insertIntoGrid(Grid *g, Matrix *m) override;
 
-    Vec3f a, b ,c;
+    Vec3f a, b, c;
     Vec3f normal;
 };
 

@@ -55,6 +55,7 @@ InputParser::InputParser(int argc, char **argv) {
             assert (i < argc);
             cutoff_weight = atof(argv[i]);
         } else if (!strcmp(argv[i], "-grid")) {
+            with_grid = true;
             i++;
             assert (i < argc);
             nx = atoi(argv[i]);

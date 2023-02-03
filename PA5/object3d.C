@@ -30,7 +30,14 @@ Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
     minn = bb->getMin();
     maxn = bb->getMax();
 
-    cell_state = new bool[nx * ny * nz];
+    cell_state.resize(nx);
+    for (int i = 0; i < nx; i++) {
+        cell_state[i].resize(ny);
+        for (int j = 0; j < ny; j++) {
+            cell_state[i][j].resize(nz);
+        }
+    }
+
     step = (maxn - minn) * Vec3f(1.0f / nx, 1.0f / ny, 1.0f / nz);
 }
 
@@ -46,9 +53,7 @@ void Grid::paint() {
 
 }
 
-Grid::~Grid() {
-    delete cell_state;
-}
+Grid::~Grid() = default;
 
 
 Sphere::Sphere(Vec3f c, float r, Material *m) {
@@ -107,11 +112,18 @@ void Sphere::insertIntoGrid(Grid *g, Matrix *m) {
     int nz = g->nz;
     Vec3f minn = g->minn, maxn = g->maxn;
     Vec3f step = g->step;
+    float grid_radius = step.Length() / 2.0f;
 
     for (int i = 0; i < nx; i++) {
         for (int j = 0; j < ny; j++) {
             for (int k = 0; k < nz; k++) {
-                
+                Vec3f grid_center(i + 0.5f, j + 0.5f, k + 0.5f);
+                grid_center = minn + grid_center * step;
+
+                float distance = (grid_center - center).Length();
+                if (distance < radius + grid_radius) {
+                    g->cell_state[i][j][k] = true;
+                }
             }
         }
     }

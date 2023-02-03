@@ -10,6 +10,12 @@ float f_clamp(float v, float min = 0, float max = 1) {
 void RayTracer::init(InputParser *input, SceneParser *scene) {
     input_parser = input;
     scene_parser = scene;
+
+    if (input_parser->with_grid) {
+        Group *group_ptr = scene_parser->getGroup();
+        grid_ptr = new Grid(group_ptr->getBoundingBox(), input_parser->nx, input_parser->ny, input_parser->nz);
+        group_ptr->insertIntoGrid(grid_ptr, nullptr);
+    }
 }
 
 RayTracer::~RayTracer() {
