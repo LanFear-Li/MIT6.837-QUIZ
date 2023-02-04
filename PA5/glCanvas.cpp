@@ -1,14 +1,4 @@
 #include "glCanvas.h"
-#include "scene_parser.h"
-#include "light.h"
-#include "camera.h"
-#include "rayTree.h"
-#include "material.h"
-#include "boundingbox.h"
-
-// Included files for OpenGL Rendering
-#include <GL/gl.h>
-#include <GL/glut.h>
 
 // ========================================================
 

@@ -1,5 +1,5 @@
-#ifndef _CAMERA_H_
-#define _CAMERA_H_
+#ifndef _PA_CAMERA_H_
+#define _PA_CAMERA_H_
 
 #include <limits>
 #include <GL/gl.h>

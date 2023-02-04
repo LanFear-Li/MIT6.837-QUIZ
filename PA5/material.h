@@ -1,15 +1,8 @@
-#ifndef _MATERIAL_H_
-#define _MATERIAL_H_
+#ifndef _PA_MATERIAL_H_
+#define _PA_MATERIAL_H_
 
-#include "vectors.h"
 #include "ray_tracer.h"
 #include "glCanvas.h"
-
- #ifdef SPECULAR_FIX
-// OPTIONAL:  global variable allows (hacky) communication
-// with glCanvas::display
- extern int SPECULAR_FIX_WHICH_PASS;
- #endif
 
 class Material {
 public:
@@ -39,6 +32,8 @@ protected:
 
 class PhongMaterial : public virtual Material {
 public:
+    PhongMaterial();
+
     PhongMaterial(const Vec3f &diffuse, const Vec3f &specular, float e, const Vec3f &reflective,
                   const Vec3f &transparent, float refraction);
 

@@ -1,5 +1,5 @@
-#ifndef _RAY_H
-#define _RAY_H
+#ifndef _PA_RAY_H_
+#define _PA_RAY_H_
 
 #include <iostream>
 using namespace std;

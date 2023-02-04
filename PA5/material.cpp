@@ -9,6 +9,8 @@ Material::Material(const Vec3f &d_color) {
 Material::~Material() = default;
 
 
+PhongMaterial::PhongMaterial() = default;
+
 PhongMaterial::PhongMaterial(const Vec3f &diffuse, const Vec3f &specular, float e, const Vec3f &reflective,
                              const Vec3f &transparent, float refraction) : Material(diffuse) {
     diffuseColor = diffuse;

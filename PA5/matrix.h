@@ -1,5 +1,5 @@
-#ifndef _MATRIX_H_
-#define _MATRIX_H_
+#ifndef _PA_MATRIX_H_
+#define _PA_MATRIX_H_
 
 //
 // originally implemented by Justin Legakis

@@ -1,5 +1,5 @@
-#ifndef _RAY_CASTER_H
-#define _RAY_CASTER_H
+#ifndef _PA_RAY_TRACER_H_
+#define _PA_RAY_TRACER_H_
 
 #include <memory>
 
@@ -36,4 +36,4 @@ public:
     Grid *grid_ptr;
 };
 
-#endif //_RAY_CASTER_H
+#endif

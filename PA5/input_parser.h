@@ -1,5 +1,5 @@
-#ifndef _INPUT_PARSER_H
-#define _INPUT_PARSER_H
+#ifndef _PA_INPUT_PARSER_H_
+#define _PA_INPUT_PARSER_H_
 
 #include <iostream>
 #include <cstring>

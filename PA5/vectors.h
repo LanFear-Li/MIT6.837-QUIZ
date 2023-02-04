@@ -1,5 +1,5 @@
-#ifndef _VECTORS_H_
-#define _VECTORS_H_
+#ifndef _PA_VECTORS_H_
+#define _PA_VECTORS_H_
 
 //
 // originally implemented by Justin Legakis

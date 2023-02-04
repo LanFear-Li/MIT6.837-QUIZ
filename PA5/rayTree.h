@@ -1,5 +1,5 @@
-#ifndef _RAY_TREE_H
-#define _RAY_TREE_H
+#ifndef _PA_RAY_TREE_H_
+#define _PA_RAY_TREE_H_
 
 #include <GL/gl.h>
 

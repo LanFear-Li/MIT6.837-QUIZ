@@ -1,5 +1,5 @@
-#ifndef _SceneParser_H_
-#define _SceneParser_H_
+#ifndef _PA_SCENE_PARSER_H_
+#define _PA_SCENE_PARSER_H_
 
 #include <assert.h>
 

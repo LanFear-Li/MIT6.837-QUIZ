@@ -4,30 +4,31 @@ project(PA5)
 set(CMAKE_CXX_STANDARD 11)
 
 add_executable(raytracer
-        main.C
-        matrix.C
-        image.C
-        material.C
-        light.C
-        camera.C
-        object3d.C
-        glCanvas.C
-        scene_parser.C
-        input_parser.C
-        ray_tracer.C
-        rayTree.C
-        boundingbox.C
+        main.cpp
+
+        matrix.cpp
+        image.cpp
+        light.cpp
+        camera.cpp
+        glCanvas.cpp
+        boundingbox.cpp
+        rayTree.cpp
+        material.cpp
+
+        object3d.cpp
+        triangle.cpp
+        sphere.cpp
+        plane.cpp
+        grid.cpp
+        group.cpp
+        transform.cpp
+
+        scene_parser.cpp
+        input_parser.cpp
+        ray_tracer.cpp
         )
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
-
-if (OPENGL_FOUND)
-    message("opengl found")
-    message("include dir: ${OPENGL_INCLUDE_DIR}")
-    message("link libraries: ${OPENGL_gl_LIBRARY}")
-else (OPENGL_FOUND)
-    message("opengl not found")
-endif()
 
 target_link_libraries(raytracer -lGL -lglut -lGLU)

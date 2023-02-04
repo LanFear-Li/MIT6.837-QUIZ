@@ -1,5 +1,5 @@
-#ifndef _HIT_H
-#define _HIT_H
+#ifndef _PA_HIT_H_
+#define _PA_HIT_H_
 
 #include "vectors.h"
 #include "ray.h"

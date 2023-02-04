@@ -8,12 +8,23 @@
 // camera position by pressing the 'r' key.
 // ====================================================================
 
-#ifndef _GL_CANVAS_H_
-#define _GL_CANVAS_H_
+#ifndef _PA_GL_CANVAS_H_
+#define _PA_GL_CANVAS_H_
 
 #include <stdlib.h>
+
 #include <GL/gl.h>
 #include <GL/glut.h>
+
+#include "light.h"
+#include "camera.h"
+#include "rayTree.h"
+#include "material.h"
+#include "boundingbox.h"
+#include "grid.h"
+#include "group.h"
+
+#include "scene_parser.h"
 
 class SceneParser;
 class Grid;

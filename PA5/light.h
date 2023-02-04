@@ -1,5 +1,5 @@
-#ifndef _LIGHT_H_
-#define _LIGHT_H_
+#ifndef _PA_LIGHT_H_
+#define _PA_LIGHT_H_
 
 #include <GL/gl.h>
 

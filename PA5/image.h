@@ -1,5 +1,5 @@
-#ifndef _IMAGE_H_
-#define _IMAGE_H_
+#ifndef _PA_IMAGE_H_
+#define _PA_IMAGE_H_
 
 #include <assert.h>
 
