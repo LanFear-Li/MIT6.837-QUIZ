@@ -1,6 +1,9 @@
 #include "triangle.h"
 
-extern RayTracer ray_tracer;
+#include "hit.h"
+#include "material.h"
+#include "plane.h"
+#include "boundingbox.h"
 
 Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     this->a = a;

@@ -1,6 +1,11 @@
 #include "sphere.h"
 
-extern RayTracer ray_tracer;
+#include "hit.h"
+#include "grid.h"
+#include "boundingbox.h"
+
+bool gouraud = false;
+int num_theta = 10, num_phi = 10;
 
 Sphere::Sphere(Vec3f c, float r, Material *m) {
     center = c;
@@ -87,9 +92,6 @@ Vec3f Sphere::sphere_loc(float theta, float phi) const {
 void Sphere::paint() {
     material_ptr->glSetMaterial();
 
-    InputParser *input_parser = ray_tracer.input_parser;
-    bool gouraud = input_parser->gouraud;
-    float num_theta = input_parser->num_theta, num_phi = input_parser->num_phi;
     float step_theta = M_PI * 2.0f / num_theta;
     float step_phi = M_PI * 1.0f / num_phi;
 

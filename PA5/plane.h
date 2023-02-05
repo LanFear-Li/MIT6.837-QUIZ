@@ -4,10 +4,6 @@
 #include <GL/gl.h>
 
 #include "object3d.h"
-#include "material.h"
-
-#include "hit.h"
-#include "boundingbox.h"
 
 class Plane : public Object3D {
 public:

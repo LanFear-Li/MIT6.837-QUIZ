@@ -15,9 +15,6 @@ public:
     float depth_min{};
     float depth_max{};
 
-    float num_theta{};
-    float num_phi{};
-
     char *input_file = nullptr;
     char *output_file = nullptr;
     char *depth_file = nullptr;
@@ -25,7 +22,6 @@ public:
 
     bool shade_back = false;
     bool gui = false;
-    bool gouraud = false;
 
     bool shadows = false;
     int max_bounces{};
@@ -38,4 +34,4 @@ public:
     bool visualize_grid = false;
 };
 
-#endif //_INPUT_PARSER_H
+#endif

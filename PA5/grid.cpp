@@ -1,6 +1,6 @@
 #include "grid.h"
 
-extern RayTracer ray_tracer;
+#include "boundingbox.h"
 
 Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
     this->bbox_ptr = bb;

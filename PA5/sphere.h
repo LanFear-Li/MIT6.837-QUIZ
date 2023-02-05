@@ -3,10 +3,6 @@
 
 #include "object3d.h"
 
-#include "hit.h"
-#include "grid.h"
-#include "boundingbox.h"
-
 class Sphere : public Object3D {
 public:
     Sphere(Vec3f c, float r, Material *m);

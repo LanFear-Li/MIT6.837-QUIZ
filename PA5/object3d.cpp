@@ -1,6 +1,7 @@
 #include "object3d.h"
 
-extern RayTracer ray_tracer;
+#include "grid.h"
+#include "boundingbox.h"
 
 Object3D::Object3D() = default;
 

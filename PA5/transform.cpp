@@ -1,5 +1,8 @@
 #include "transform.h"
 
+#include "hit.h"
+#include "boundingbox.h"
+
 Transform::Transform(Matrix &m, Object3D *o) {
     mat = m;
 

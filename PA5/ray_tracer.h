@@ -5,11 +5,10 @@
 
 #include "input_parser.h"
 #include "scene_parser.h"
-#include "glCanvas.h"
 #include "image.h"
-#include "camera.h"
-#include "light.h"
-#include "rayTree.h"
+#include "ray.h"
+#include "hit.h"
+#include "grid.h"
 
 extern const Vec3f BLACK;
 extern const Vec3f WHITE;

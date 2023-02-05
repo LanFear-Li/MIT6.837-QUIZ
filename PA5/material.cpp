@@ -1,4 +1,5 @@
 #include "material.h"
+#include "glCanvas.h"
 
 Material::Material() = default;
 

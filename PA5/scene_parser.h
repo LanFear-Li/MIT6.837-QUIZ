@@ -5,6 +5,18 @@
 
 #include "vectors.h"
 
+#include "matrix.h"
+#include "camera.h"
+#include "light.h"
+#include "material.h"
+
+#include "object3d.h"
+#include "group.h"
+#include "sphere.h"
+#include "plane.h"
+#include "triangle.h"
+#include "transform.h"
+
 class Camera;
 class Light;
 class Material;
@@ -33,13 +45,13 @@ public:
   Vec3f getBackgroundColor() const { return background_color; }
   Vec3f getAmbientLight() const { return ambient_light; }
   int getNumLights() const { return num_lights; }
-  Light* getLight(int i) const { 
-    assert(i >= 0 && i < num_lights); 
-    return lights[i]; }  
+  Light* getLight(int i) const {
+    assert(i >= 0 && i < num_lights);
+    return lights[i]; }
   int getNumMaterials() const { return num_materials; }
-  Material* getMaterial(int i) const { 
-    assert(i >= 0 && i < num_materials); 
-    return materials[i]; }  
+  Material* getMaterial(int i) const {
+    assert(i >= 0 && i < num_materials);
+    return materials[i]; }
   Group* getGroup() const { return group; }
 
 private:

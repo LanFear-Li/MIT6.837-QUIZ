@@ -3,9 +3,6 @@
 
 #include "object3d.h"
 
-#include "hit.h"
-#include "boundingbox.h"
-
 class Transform : public virtual Object3D {
 public:
     Transform(Matrix &m, Object3D *o);

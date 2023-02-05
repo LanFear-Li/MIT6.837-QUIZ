@@ -1,6 +1,7 @@
 #include "plane.h"
 
-extern RayTracer ray_tracer;
+#include "hit.h"
+#include "material.h"
 
 Plane::Plane(Vec3f &n, float d, Material *m) {
     normal = n;

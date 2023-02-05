@@ -5,8 +5,6 @@
 
 #include "matrix.h"
 
-class RayTracer;
-
 class Ray;
 class Hit;
 class Material;

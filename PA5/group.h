@@ -6,9 +6,6 @@
 
 #include "object3d.h"
 
-#include "hit.h"
-#include "boundingbox.h"
-
 class Group : public virtual Object3D {
 public:
     Group(int num);

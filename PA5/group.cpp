@@ -1,6 +1,7 @@
 #include "group.h"
 
-extern RayTracer ray_tracer;
+#include "hit.h"
+#include "boundingbox.h"
 
 Group::Group(int num) {
     num_objects = num;

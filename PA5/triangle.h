@@ -4,11 +4,6 @@
 #include <GL/gl.h>
 
 #include "object3d.h"
-#include "material.h"
-
-#include "hit.h"
-#include "plane.h"
-#include "boundingbox.h"
 
 class Triangle : public Object3D {
 public:

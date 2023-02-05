@@ -1,8 +1,13 @@
 #ifndef _PA_MATERIAL_H_
 #define _PA_MATERIAL_H_
 
-#include "ray_tracer.h"
-#include "glCanvas.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
+
+#include "vectors.h"
+
+#include "ray.h"
+#include "hit.h"
 
 class Material {
 public:
