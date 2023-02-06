@@ -9,6 +9,18 @@
 #include "object3d.h"
 #include "material.h"
 
+class MarchingInfo {
+public:
+    void nextCell();
+
+    float t_min;
+    Vec3f grid_index;
+    Vec3f t_next;
+    Vec3f d_t;
+    Vec3f sign;
+    Vec3f cell_normal;
+};
+
 class Grid : public Object3D {
 public:
     Grid(BoundingBox *bb, int nx, int ny, int nz);
@@ -18,6 +30,8 @@ public:
     void paint() override;
 
     void insertIntoGrid(Grid *g, Matrix *m) override;
+
+    void initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const;
 
     ~Grid();
 
