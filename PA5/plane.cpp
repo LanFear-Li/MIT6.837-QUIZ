@@ -3,9 +3,23 @@
 #include "hit.h"
 #include "material.h"
 
+Plane::Plane() = default;
+
 Plane::Plane(Vec3f &n, float d, Material *m) {
     normal = n;
     distance = d;
+    material_ptr = m;
+
+    object_type = PLANE;
+
+    // plane has infinite bbox
+    bbox_ptr = nullptr;
+}
+
+Plane::Plane(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
+    Vec3f::Cross3(normal, b - a, c - b);
+    normal.Normalize();
+    distance = a.Dot3(normal);
     material_ptr = m;
 
     object_type = PLANE;

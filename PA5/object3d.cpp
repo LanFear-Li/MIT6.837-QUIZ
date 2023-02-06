@@ -18,7 +18,6 @@ void Object3D::insertIntoGrid(Grid *g, Matrix *m) {
 }
 
 Object3D::~Object3D() {
-    delete material_ptr;
     delete bbox_ptr;
 }
 

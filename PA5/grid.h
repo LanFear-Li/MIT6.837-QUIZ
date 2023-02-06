@@ -14,11 +14,13 @@ public:
     void nextCell();
 
     float t_min;
-    Vec3f grid_index;
-    Vec3f t_next;
-    Vec3f d_t;
-    Vec3f sign;
+    int grid_index[3];
+    float t_next[3];
+    float d_t[3];
+    int sign[3];
     Vec3f cell_normal;
+
+    bool hit_cell = false;
 };
 
 class Grid : public Object3D {
@@ -33,6 +35,10 @@ public:
 
     void initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const;
 
+    void get_index(const Vec3f &point, int index[3]) const;
+
+    bool validate(int *index) const;
+
     ~Grid();
 
     int nx, ny, nz;
@@ -43,7 +49,14 @@ public:
 
     vector<vector<vector<bool>>> cell_state;
 
-    PhongMaterial grid_material;
+    int plane_index[6][4] = {
+            {4, 5, 6, 7},
+            {0, 1, 2, 3},
+            {3, 0, 4, 7},
+            {1, 2, 6, 5},
+            {0, 1, 5, 4},
+            {2, 3, 7, 6}
+    };
 };
 
 #endif

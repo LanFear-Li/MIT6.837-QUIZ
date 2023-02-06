@@ -92,7 +92,8 @@ bool RayTracer::transmittedDirection(const Vec3f &normal, const Vec3f &incoming,
 }
 
 Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, float indexOfRefraction, Hit &hit) const {
-    Group *group = scene_parser->getGroup();
+    cout << "start trace Ray..." << endl;
+    Group *group_ptr = scene_parser->getGroup();
     Vec3f ambient_light = scene_parser->getAmbientLight();
     Vec3f background_color = scene_parser->getBackgroundColor();
     int light_num = scene_parser->getNumLights();
@@ -100,9 +101,17 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
     if (bounces > input_parser->max_bounces || weight < input_parser->cutoff_weight) {
         return {0, 0, 0};
     }
+    cout << "start find intersect..." << endl;
+    Object3D *object;
+    if (input_parser->visualize_grid) {
+        object = grid_ptr;
+    } else {
+        object = group_ptr;
+    }
 
     Vec3f color;
-    if (group->intersect(ray, hit, t_min)) {
+    if (object->intersect(ray, hit, t_min)) {
+        cout << "found intersect..." << endl;
         Material *material_ptr = hit.getMaterial();
         Vec3f object_color = material_ptr->getDiffuseColor();
         color = ambient_light * object_color;
@@ -123,7 +132,8 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
         }
 
         if (bounces == 0) {
-            RayTree::SetMainSegment(ray, 0, hit.getT());
+            float t_stop = input_parser->visualize_grid ? MAXFLOAT : hit.getT();
+            RayTree::SetMainSegment(ray, 0, t_stop);
         }
 
         float epsilon = 1e-5;
@@ -136,7 +146,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
             if (input_parser->shadows) {
                 Ray ray_shadow(intersect, dir_to_light);
                 Hit hit_shadow;
-                if (group->intersect(ray_shadow, hit_shadow, epsilon) && dis_to_light > hit_shadow.getT()) {
+                if (object->intersect(ray_shadow, hit_shadow, epsilon) && dis_to_light > hit_shadow.getT()) {
                     RayTree::AddShadowSegment(ray_shadow, 0, hit_shadow.getT());
                     continue;
                 } else {
@@ -145,6 +155,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
             }
 
             color += material_ptr->Shade(ray, hit, dir_to_light, light_color);
+//            cout << ray.getDirection() << " color: " << color << endl;
         }
 
         // generate reflection color
@@ -185,6 +196,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
             }
         }
     } else {
+        RayTree::SetMainSegment(ray, 0, MAXFLOAT);
         color = background_color;
     }
 
