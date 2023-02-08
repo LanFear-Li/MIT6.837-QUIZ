@@ -49,6 +49,7 @@ Transform::Transform(Matrix &m, Object3D *o) {
     bbox_ptr->Extend(p6);
     bbox_ptr->Extend(p7);
     bbox_ptr->Print();
+    cout << "Transform created" << endl;
 }
 
 bool Transform::intersect(const Ray &r, Hit &h, float t_min) {

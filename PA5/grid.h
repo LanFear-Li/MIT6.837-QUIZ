@@ -31,13 +31,13 @@ public:
 
     void paint() override;
 
-    void insertIntoGrid(Grid *g, Matrix *m) override;
-
     void initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const;
 
-    void get_index(const Vec3f &point, int index[3]) const;
+    void get_index(const Vec3f &point, int *index) const;
 
-    bool validate(int *index) const;
+    bool validate_index(int *index) const;
+
+    bool validate_point(const Vec3f &p) const;
 
     ~Grid();
 

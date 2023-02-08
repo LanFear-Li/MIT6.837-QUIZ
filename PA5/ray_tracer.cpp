@@ -111,7 +111,6 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
 
     Vec3f color;
     if (object->intersect(ray, hit, t_min)) {
-        cout << "found intersect..." << endl;
         Material *material_ptr = hit.getMaterial();
         Vec3f object_color = material_ptr->getDiffuseColor();
         color = ambient_light * object_color;
@@ -153,8 +152,9 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
                     RayTree::AddShadowSegment(ray_shadow, 0, dis_to_light);
                 }
             }
-
-            color += material_ptr->Shade(ray, hit, dir_to_light, light_color);
+            Vec3f add_color = material_ptr->Shade(ray, hit, dir_to_light, light_color);
+            cout << "Add Color: " << add_color << endl;
+            color += add_color;
 //            cout << ray.getDirection() << " color: " << color << endl;
         }
 

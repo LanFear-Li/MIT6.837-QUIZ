@@ -24,6 +24,7 @@ Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     bbox_ptr->Extend(b);
     bbox_ptr->Extend(c);
     bbox_ptr->Print();
+    cout << "Triangle created" << endl;
 }
 
 bool Triangle::intersect(const Ray &r, Hit &h, float t_min) {

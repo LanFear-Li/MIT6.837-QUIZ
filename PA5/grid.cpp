@@ -52,6 +52,10 @@ Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
     step = (maxn - minn) * Vec3f(1.0f / nx, 1.0f / ny, 1.0f / nz);
 
     material_ptr = new PhongMaterial(Vec3f(1.0f, 1.0f, 1.0f), Vec3f(), 0.0f, Vec3f(), Vec3f(), 1.0f);
+
+    cout << "new grid: " << this->nx << " " << this->ny << " " << this->nz << endl;
+    this->bbox_ptr->Print();
+    cout << "step: " << step << endl;
 }
 
 bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
@@ -63,8 +67,8 @@ bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
     float hit_t_value;
     Vec3f hit_normal;
     if (info.hit_cell) {
-        cout << "info hit cell"  << endl;
-        while (validate(info.grid_index)) {
+        cout << "info hit cell" << endl;
+        while (validate_index(info.grid_index)) {
             int x = info.grid_index[0], y = info.grid_index[1], z = info.grid_index[2];
 
             if (cell_state[x][y][z]) {
@@ -155,10 +159,6 @@ void Grid::paint() {
     }
 }
 
-void Grid::insertIntoGrid(Grid *g, Matrix *m) {
-
-}
-
 void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const {
     cout << "start initializeRayMarch..." << endl;
     for (int i = 0; i < 3; i++) {
@@ -199,8 +199,7 @@ void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const
     Vec3f point_start = r.pointAtParameter(t_min);
     int enter_face_index;
     // check if point_start point is inside the grid
-    if (point_start.x() > minn.x() && point_start.y() > minn.y() && point_start.z() > minn.z() &&
-        point_start.x() < maxn.x() && point_start.y() < maxn.y() && point_start.z() < maxn.z()) {
+    if (validate_point(point_start)) {
         mi.hit_cell = true;
         point_hit = point_start;
         cout << "inside bbox" << endl;
@@ -211,9 +210,12 @@ void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const
         for (int i = 0; i < 6; i++) {
             Hit hit;
             if (plane[i].intersect(r, hit, t_min)) {
-//                cout << "plane " << i << " intersected" << endl;
-                if (hit.getMaterial() == nullptr || hit.getT() < hit_closest.getT()) {
-                    cout << "hit!!!!!!!!!!!!!!!!!!!!!!" << endl;
+                Vec3f p = hit.getIntersectionPoint();
+                if (!validate_point(p)) {
+                    continue;
+                }
+
+                if (hit_closest.getMaterial() == nullptr || hit.getT() < hit_closest.getT()) {
                     hit_closest = hit;
                     mi.cell_normal = normals[i];
                     mi.hit_cell = true;
@@ -256,14 +258,22 @@ void Grid::get_index(const Vec3f &point, int *index) const {
     }
 }
 
-bool Grid::validate(int *index) const {
-    if (index[0] < 0 || index[0] > nx) return false;
-    if (index[1] < 0 || index[1] > ny) return false;
-    if (index[2] < 0 || index[2] > nz) return false;
+bool Grid::validate_index(int *index) const {
+    if (index[0] < 0 || index[0] >= nx) return false;
+    if (index[1] < 0 || index[1] >= ny) return false;
+    if (index[2] < 0 || index[2] >= nz) return false;
+
+    return true;
+}
+
+bool Grid::validate_point(const Vec3f &p) const {
+    if (p.x() < minn.x() || p.x() > maxn.x()) return false;
+    if (p.y() < minn.y() || p.y() > maxn.y()) return false;
+    if (p.z() < minn.z() || p.z() > maxn.z()) return false;
 
     return true;
 }
 
 Grid::~Grid() {
-    delete material_ptr;
+    // delete material_ptr;
 }

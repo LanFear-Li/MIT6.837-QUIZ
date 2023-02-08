@@ -19,6 +19,7 @@ Sphere::Sphere(Vec3f c, float r, Material *m) {
     Vec3f maxn = c + Vec3f(r, r, r);
     bbox_ptr = new BoundingBox(minn, maxn);
     bbox_ptr->Print();
+    cout << "Sphere created" << endl;
 }
 
 bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
