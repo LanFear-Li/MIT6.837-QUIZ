@@ -53,13 +53,10 @@ Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
 
     material_ptr = new PhongMaterial(Vec3f(1.0f, 1.0f, 1.0f), Vec3f(), 0.0f, Vec3f(), Vec3f(), 1.0f);
 
-    cout << "new grid: " << this->nx << " " << this->ny << " " << this->nz << endl;
     this->bbox_ptr->Print();
-    cout << "step: " << step << endl;
 }
 
 bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
-    cout << "start grid intersect..." << endl;
     MarchingInfo info;
     initializeRayMarch(info, r, t_min);
 
@@ -67,7 +64,6 @@ bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
     float hit_t_value;
     Vec3f hit_normal;
     if (info.hit_cell) {
-        cout << "info hit cell" << endl;
         while (validate_index(info.grid_index)) {
             int x = info.grid_index[0], y = info.grid_index[1], z = info.grid_index[2];
 
@@ -160,7 +156,6 @@ void Grid::paint() {
 }
 
 void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const {
-    cout << "start initializeRayMarch..." << endl;
     for (int i = 0; i < 3; i++) {
         mi.sign[i] = r.getDirection()[i] > 0.0f ? 1 : -1;
         mi.d_t[i] = step[i] / r.getDirection()[i] * mi.sign[i];
@@ -188,12 +183,12 @@ void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const
     plane[5] = Plane(vertex[2], vertex[3], vertex[7], material_ptr);
 
     Vec3f normals[6];
-    normals[0] = Vec3f(0.0f, 1.0f, 0.0f);
-    normals[1] = Vec3f(0.0f, -1.0f, 0.0f);
-    normals[2] = Vec3f(-1.0f, 0.0f, 0.0f);
-    normals[3] = Vec3f(1.0f, 0.0f, 0.0f);
-    normals[4] = Vec3f(0.0f, 0.0f, 1.0f);
-    normals[5] = Vec3f(0.0f, 0.0f, -1.0f);
+    normals[0] = Vec3f(0.0f, -1.0f, 0.0f);
+    normals[1] = Vec3f(0.0f, 1.0f, 0.0f);
+    normals[2] = Vec3f(1.0f, 0.0f, 0.0f);
+    normals[3] = Vec3f(-1.0f, 0.0f, 0.0f);
+    normals[4] = Vec3f(0.0f, 0.0f, -1.0f);
+    normals[5] = Vec3f(0.0f, 0.0f, 1.0f);
 
     Vec3f point_hit;
     Vec3f point_start = r.pointAtParameter(t_min);
@@ -202,7 +197,6 @@ void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const
     if (validate_point(point_start)) {
         mi.hit_cell = true;
         point_hit = point_start;
-        cout << "inside bbox" << endl;
     } else {
         // if not, find the nearest point on the grid
         // find closest ray-plane intersection
@@ -227,7 +221,6 @@ void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const
 
         mi.t_min = hit_closest.getT();
         point_hit = hit_closest.getIntersectionPoint();
-        cout << "outside bbox" << endl;
     }
 
     // construct the marching info: next grid index and the t-value to it
@@ -248,13 +241,14 @@ void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const
                                     vertex[plane_index[x][3]], normals[i], material_ptr);
         }
     }
-
-    cout << "hit cell: " << mi.hit_cell << endl;
 }
 
 void Grid::get_index(const Vec3f &point, int *index) const {
+    int n[3] = {nx, ny, nz};
+
     for (int i = 0; i < 3; i++) {
-        index[i] = ceil((point[i] - minn[i]) / step[i]);
+        float temp = (point[i] - minn[i]) / step[i];
+        index[i] = std::max(0, std::min(int(floorf(temp)), n[i] - 1));
     }
 }
 

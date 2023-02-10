@@ -92,7 +92,6 @@ bool RayTracer::transmittedDirection(const Vec3f &normal, const Vec3f &incoming,
 }
 
 Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, float indexOfRefraction, Hit &hit) const {
-    cout << "start trace Ray..." << endl;
     Group *group_ptr = scene_parser->getGroup();
     Vec3f ambient_light = scene_parser->getAmbientLight();
     Vec3f background_color = scene_parser->getBackgroundColor();
@@ -101,7 +100,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
     if (bounces > input_parser->max_bounces || weight < input_parser->cutoff_weight) {
         return {0, 0, 0};
     }
-    cout << "start find intersect..." << endl;
+
     Object3D *object;
     if (input_parser->visualize_grid) {
         object = grid_ptr;
@@ -118,7 +117,6 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
         Vec3f normal = hit.getNormal();
         Vec3f intersect = hit.getIntersectionPoint();
         Vec3f ray_dir = ray.getDirection();
-
         // enable back face shading
         bool back_face = normal.Dot3(ray_dir) > 0;
         if (back_face) {
@@ -153,9 +151,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
                 }
             }
             Vec3f add_color = material_ptr->Shade(ray, hit, dir_to_light, light_color);
-            cout << "Add Color: " << add_color << endl;
             color += add_color;
-//            cout << ray.getDirection() << " color: " << color << endl;
         }
 
         // generate reflection color

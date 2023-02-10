@@ -33,7 +33,6 @@ Vec3f PhongMaterial::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLig
     Vec3f half_vec = v + dirToLight;
     half_vec.Normalize();
     Vec3f specular_color = getSpecularColor() * powf(normal.Dot3(half_vec), exponent);
-
     return (diffuse_color + specular_color) * lightColor;
 }
 
