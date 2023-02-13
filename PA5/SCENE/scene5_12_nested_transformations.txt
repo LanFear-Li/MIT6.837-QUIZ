@@ -37,7 +37,7 @@ Group {
             Transform {
                 Translate  -3 0 3 
                 TriangleMesh {
-                    obj_file cube.obj
+                    obj_file ../MODEL/cube.obj
                 }
             }
             MaterialIndex 1
@@ -47,7 +47,7 @@ Group {
 		    Translate 0 1 0 
 		    Scale 1 2 1
 		    TriangleMesh {
-                        obj_file cube.obj
+                        obj_file ../MODEL/cube.obj
                     }
                 }
             }
@@ -63,7 +63,7 @@ Group {
 			ZRotate 45
 			Translate 0 -1 0
 		        TriangleMesh {
-                            obj_file cube.obj
+                            obj_file ../MODEL/cube.obj
                         }
                     }
                 }

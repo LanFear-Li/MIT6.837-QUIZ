@@ -33,7 +33,7 @@ Group {
 
     MaterialIndex 0
     TriangleMesh {
-        obj_file bunny_5k.obj
+        obj_file ../MODEL/bunny_5k.obj
     }
 }
 

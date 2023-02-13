@@ -74,7 +74,7 @@ void Sphere::insertIntoGrid(Grid *g, Matrix *m) {
 
                 float distance = (grid_center - center).Length();
                 if (distance < radius + grid_radius) {
-                    g->cell_state[i][j][k] = true;
+                    g->cell_state[i][j][k].push_back(this);
                 }
             }
         }

@@ -26,7 +26,7 @@ add_executable(raytracer
         scene_parser.cpp
         input_parser.cpp
         ray_tracer.cpp
-        )
+        color.h)
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)

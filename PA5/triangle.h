@@ -15,6 +15,8 @@ public:
 
     void insertIntoGrid(Grid *g, Matrix *m) override;
 
+    bool inside(const Vec3f &p) const;
+
     Vec3f a, b, c;
     Vec3f normal;
 };

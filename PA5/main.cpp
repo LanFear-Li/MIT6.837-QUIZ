@@ -3,9 +3,6 @@
 #include "ray_tracer.h"
 #include "glCanvas.h"
 
-const Vec3f BLACK(0, 0, 0);
-const Vec3f WHITE(1, 1, 1);
-
 RayTracer ray_tracer;
 
 void render_magic() {

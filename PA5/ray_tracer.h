@@ -10,9 +10,6 @@
 #include "hit.h"
 #include "grid.h"
 
-extern const Vec3f BLACK;
-extern const Vec3f WHITE;
-
 class RayTracer {
 public:
     void init(InputParser *input, SceneParser *scene);

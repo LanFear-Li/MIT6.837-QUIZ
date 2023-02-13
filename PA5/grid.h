@@ -23,6 +23,8 @@ public:
     bool hit_cell = false;
 };
 
+typedef vector<Object3D *> object_list;
+
 class Grid : public Object3D {
 public:
     Grid(BoundingBox *bb, int nx, int ny, int nz);
@@ -47,7 +49,7 @@ public:
 
     Vec3f minn, maxn;
 
-    vector<vector<vector<bool>>> cell_state;
+    vector<vector<vector<object_list>>> cell_state;
 
     int plane_index[6][4] = {
             {4, 5, 6, 7},
@@ -57,6 +59,8 @@ public:
             {0, 1, 5, 4},
             {2, 3, 7, 6}
     };
+
+    PhongMaterial material_type[13];
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include "material.h"
 #include "plane.h"
 #include "boundingbox.h"
+#include "grid.h"
 
 Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     this->a = a;
@@ -36,19 +37,7 @@ bool Triangle::intersect(const Ray &r, Hit &h, float t_min) {
     if (plane.intersect(r, hit, t_min) && hit.getT() >= t_min) {
         Vec3f p = hit.getIntersectionPoint();
 
-        // use cross product to check whether inside the triangle
-        Vec3f ab = b - a, bc = c - b, ca = a - c;
-        Vec3f ap = p - a, bp = p - b, cp = p - c;
-
-        Vec3f cross;
-        Vec3f::Cross3(cross, ab, ap);
-        float cross_a = normal.Dot3(cross);
-        Vec3f::Cross3(cross, bc, bp);
-        float cross_b = normal.Dot3(cross);
-        Vec3f::Cross3(cross, ca, cp);
-        float cross_c = normal.Dot3(cross);
-
-        if (cross_a > 0 && cross_b > 0 && cross_c > 0 || cross_a <= 0 && cross_b <= 0 && cross_c <= 0) {
+        if (inside(p)) {
             h = hit;
             return true;
         }
@@ -69,5 +58,35 @@ void Triangle::paint() {
 }
 
 void Triangle::insertIntoGrid(Grid *g, Matrix *m) {
+    int min_idx[3], max_idx[3];
 
+    g->get_index(bbox_ptr->getMin(), min_idx);
+    g->get_index(bbox_ptr->getMax(), max_idx);
+    for (int i = min_idx[0]; i <= max_idx[0]; i++) {
+        for (int j = min_idx[1]; j <= max_idx[1]; j++) {
+            for (int k = min_idx[2]; k <= max_idx[2]; k++) {
+                g->cell_state[i][j][k].push_back(this);
+            }
+        }
+    }
+}
+
+bool Triangle::inside(const Vec3f &p) const {
+    // use cross product to check whether inside the triangle
+    Vec3f ab = b - a, bc = c - b, ca = a - c;
+    Vec3f ap = p - a, bp = p - b, cp = p - c;
+
+    Vec3f cross;
+    Vec3f::Cross3(cross, ab, ap);
+    float cross_a = normal.Dot3(cross);
+    Vec3f::Cross3(cross, bc, bp);
+    float cross_b = normal.Dot3(cross);
+    Vec3f::Cross3(cross, ca, cp);
+    float cross_c = normal.Dot3(cross);
+
+    if (cross_a > 0 && cross_b > 0 && cross_c > 0 || cross_a <= 0 && cross_b <= 0 && cross_c <= 0) {
+        return true;
+    }
+
+    return false;
 }

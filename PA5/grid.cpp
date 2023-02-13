@@ -5,6 +5,7 @@
 #include "boundingbox.h"
 #include "plane.h"
 #include "rayTree.h"
+#include "color.h"
 
 void MarchingInfo::nextCell() {
     // find smallest t_next
@@ -44,14 +45,23 @@ Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
     cell_state.resize(nx);
     for (int i = 0; i < nx; i++) {
         cell_state[i].resize(ny);
+
         for (int j = 0; j < ny; j++) {
             cell_state[i][j].resize(nz);
+
+            for (int k = 0; k < nz; k++) {
+                cell_state[i][j][k].clear();
+            }
         }
     }
 
     step = (maxn - minn) * Vec3f(1.0f / nx, 1.0f / ny, 1.0f / nz);
 
-    material_ptr = new PhongMaterial(Vec3f(1.0f, 1.0f, 1.0f), Vec3f(), 0.0f, Vec3f(), Vec3f(), 1.0f);
+    // visualize grid with different color, depend on object count inside
+    for (int i = 0; i < 13; i++) {
+        material_type[i] = PhongMaterial(COLOR_LIST[i], Vec3f(), 0.0f, Vec3f(), Vec3f(), 1.0f);
+    }
+    material_ptr = &material_type[0];
 
     this->bbox_ptr->Print();
 }
@@ -64,17 +74,21 @@ bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
     float hit_t_value;
     Vec3f hit_normal;
     if (info.hit_cell) {
+        info.hit_cell = false;
+        int object_count = 0;
+
         while (validate_index(info.grid_index)) {
             int x = info.grid_index[0], y = info.grid_index[1], z = info.grid_index[2];
 
-            if (cell_state[x][y][z]) {
-                // this cell is opaque
+            if (!cell_state[x][y][z].empty()) {
+                // this cell is opaque, may hit something
                 info.hit_cell = true;
 
                 if (!hit_opaque) {
                     hit_t_value = info.t_min;
                     hit_normal = info.cell_normal;
                     hit_opaque = true;
+                    object_count = cell_state[x][y][z].size();
                 }
             }
 
@@ -83,7 +97,7 @@ bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
 
         if (info.hit_cell) {
             hit_normal.Negate();
-            h.set(hit_t_value, material_ptr, hit_normal, r);
+            h.set(hit_t_value, &material_type[min(object_count, 13 - 1)], hit_normal, r);
             return true;
         }
     }
@@ -96,7 +110,7 @@ void Grid::paint() {
     for (int i = 0; i < nx; i++) {
         for (int j = 0; j < ny; j++) {
             for (int k = 0; k < nz; k++) {
-                if (cell_state[i][j][k]) {
+                if (!cell_state[i][j][k].empty()) {
                     Vec3f vertex[8];
 
                     vertex[0] = minn + step * Vec3f(i + 0, j + 0, k + 1);
@@ -108,7 +122,8 @@ void Grid::paint() {
                     vertex[6] = minn + step * Vec3f(i + 1, j + 1, k + 0);
                     vertex[7] = minn + step * Vec3f(i + 0, j + 1, k + 0);
 
-                    material_ptr->glSetMaterial();
+                    int object_count = cell_state[i][j][k].size();
+                    material_type[min(object_count, 13 - 1)].glSetMaterial();
                     glBegin(GL_QUADS);
                     // sequence: up, down
                     glNormal3f(0.0f, 1.0f, 0.0f);
@@ -226,7 +241,7 @@ void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const
     // construct the marching info: next grid index and the t-value to it
     get_index(point_hit, mi.grid_index);
     for (int i = 0; i < 3; i++) {
-        float index_next = mi.grid_index[i] + mi.sign[i];
+        float index_next = mi.grid_index[i] + (mi.sign[i] + 1) / 2;
         mi.t_next[i] = (minn[i] + step[i] * index_next - r.getOrigin()[i]) / r.getDirection()[i];
     }
 
@@ -261,9 +276,11 @@ bool Grid::validate_index(int *index) const {
 }
 
 bool Grid::validate_point(const Vec3f &p) const {
-    if (p.x() < minn.x() || p.x() > maxn.x()) return false;
-    if (p.y() < minn.y() || p.y() > maxn.y()) return false;
-    if (p.z() < minn.z() || p.z() > maxn.z()) return false;
+    float epsilon = 1e-5;
+
+    if (p.x() < minn.x() - epsilon || p.x() > maxn.x() + epsilon) return false;
+    if (p.y() < minn.y() - epsilon || p.y() > maxn.y() + epsilon) return false;
+    if (p.z() < minn.z() - epsilon || p.z() > maxn.z() + epsilon) return false;
 
     return true;
 }

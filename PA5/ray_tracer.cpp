@@ -1,6 +1,7 @@
 #include "ray_tracer.h"
 
 #include "rayTree.h"
+#include "color.h"
 
 float f_clamp(float v, float min = 0, float max = 1) {
     float ans = v;
