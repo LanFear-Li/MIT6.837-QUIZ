@@ -298,7 +298,7 @@ Material *SceneParser::parseCheckerboard(int count) {
   int m2 = readInt();
   assert (m2 >= 0 && m2 < count);
   getToken(token); assert (!strcmp(token, "}"));
-  return new Checkerboard(matrix,materials[m1],materials[m2]);
+  return new CheckerBoard(matrix,materials[m1],materials[m2]);
 }
 
 

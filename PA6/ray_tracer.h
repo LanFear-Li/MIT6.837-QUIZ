@@ -23,6 +23,10 @@ public:
 
     Vec3f traceRay(Ray &ray, float t_min, int bounces, float weight, float indexOfRefraction, Hit &hit) const;
 
+    bool RayCast(Object3D *object, const Ray &r, Hit &h, float t_min);
+
+    bool RayCastFast(Object3D *object, const Ray &r, Hit &h, float t_min);
+
     ~RayTracer();
 
     InputParser *input_parser;

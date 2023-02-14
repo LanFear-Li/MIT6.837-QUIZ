@@ -5,6 +5,7 @@
 #include "plane.h"
 #include "boundingbox.h"
 #include "grid.h"
+#include "raytracing_stats.h"
 
 Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     this->a = a;
@@ -24,11 +25,12 @@ Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     bbox_ptr = new BoundingBox(a, a);
     bbox_ptr->Extend(b);
     bbox_ptr->Extend(c);
-    bbox_ptr->Print();
-    cout << "Triangle created" << endl;
 }
 
 bool Triangle::intersect(const Ray &r, Hit &h, float t_min) {
+    // Stats: Ray-Primitive intersection operation
+    RayTracingStats::IncrementNumIntersections();
+
     Vec3f ori = r.getOrigin(), dir = r.getDirection();
 
     float dis = a.Dot3(normal);

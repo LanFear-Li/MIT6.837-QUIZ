@@ -68,4 +68,72 @@ protected:
     float indexOfRefraction;
 };
 
+class CheckerBoard : public virtual Material {
+public:
+    CheckerBoard();
+
+    CheckerBoard(Matrix *m, Material *mat1, Material *mat2);
+
+    Vec3f Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const override;
+
+    void glSetMaterial() const override;
+
+    Vec3f getSpecularColor() const override;
+
+    Vec3f getReflectiveColor() const override;
+
+    Vec3f getTransparentColor() const override;
+
+    float getIndexOfRefraction() const override;
+
+    ~CheckerBoard() override;
+
+protected:
+    Material *material_ptr_a;
+
+    Material *material_ptr_b;
+
+    Matrix * world_to_texture;
+};
+
+class Noise : public virtual Material {
+public:
+    Noise();
+
+    Noise(Matrix *m, Material *mat1, Material *mat2, int octaves);
+
+    Vec3f Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const override;
+
+    void glSetMaterial() const override;
+
+    Vec3f getSpecularColor() const override;
+
+    Vec3f getReflectiveColor() const override;
+
+    Vec3f getTransparentColor() const override;
+
+    float getIndexOfRefraction() const override;
+
+    ~Noise() override;
+
+protected:
+    Material *material_ptr_a;
+
+    Material *material_ptr_b;
+
+    Matrix * world_to_texture;
+
+    int octaves;
+};
+
+class Marble : public virtual Noise {
+public:
+    Marble(Matrix *m, Material *mat1, Material *mat2, int octaves, float frequency, float amplitude);
+};
+
+class Wood : public virtual Noise {
+public:
+    Wood(Matrix *m, Material *mat1, Material *mat2, int octaves, float frequency, float amplitude);
+};
+
 #endif

@@ -3,6 +3,7 @@
 #include "hit.h"
 #include "grid.h"
 #include "boundingbox.h"
+#include "raytracing_stats.h"
 
 bool gouraud = false;
 int num_theta = 10, num_phi = 10;
@@ -18,11 +19,12 @@ Sphere::Sphere(Vec3f c, float r, Material *m) {
     Vec3f minn = c - Vec3f(r, r, r);
     Vec3f maxn = c + Vec3f(r, r, r);
     bbox_ptr = new BoundingBox(minn, maxn);
-    bbox_ptr->Print();
-    cout << "Sphere created" << endl;
 }
 
 bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
+    // Stats: Ray-Primitive intersection operation
+    RayTracingStats::IncrementNumIntersections();
+
     Vec3f cen = center;
     float rad = radius;
     Vec3f ori = r.getOrigin(), dir = r.getDirection();

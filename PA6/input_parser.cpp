@@ -71,6 +71,8 @@ InputParser::InputParser(int argc, char **argv) {
             nz = atoi(argv[i]);
         } else if (!strcmp(argv[i], "-visualize_grid")) {
             visualize_grid = true;
+        } else if (!strcmp(argv[i], "-stats")) {
+            stats = true;
         } else {
             printf("whoops error with command line argument %d: '%s'\n", i, argv[i]);
             assert(0);

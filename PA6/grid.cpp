@@ -5,9 +5,13 @@
 #include "boundingbox.h"
 #include "plane.h"
 #include "rayTree.h"
+#include "raytracing_stats.h"
 #include "color.h"
 
 void MarchingInfo::nextCell() {
+    // Stats: Cell traversed
+    RayTracingStats::IncrementNumGridCellsTraversed();
+
     // find smallest t_next
     float t_next_min = std::numeric_limits<float>::max();
     int min_index = -1;
@@ -62,8 +66,6 @@ Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
         material_type[i] = PhongMaterial(COLOR_LIST[i], Vec3f(), 0.0f, Vec3f(), Vec3f(), 1.0f);
     }
     material_ptr = &material_type[0];
-
-    this->bbox_ptr->Print();
 }
 
 bool Grid::intersect(const Ray &r, Hit &h, float t_min) {

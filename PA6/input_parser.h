@@ -32,6 +32,8 @@ public:
     int nz{};
     bool with_grid = false;
     bool visualize_grid = false;
+
+    bool stats = false;
 };
 
 #endif

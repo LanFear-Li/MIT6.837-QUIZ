@@ -111,3 +111,92 @@ float PhongMaterial::getIndexOfRefraction() const {
 }
 
 PhongMaterial::~PhongMaterial() = default;
+
+
+CheckerBoard::CheckerBoard() {
+
+}
+
+CheckerBoard::CheckerBoard(Matrix *m, Material *mat1, Material *mat2) {
+    this->world_to_texture = m;
+    this->material_ptr_a = mat1;
+    this->material_ptr_b = mat2;
+}
+
+Vec3f CheckerBoard::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const {
+    return Vec3f();
+}
+
+void CheckerBoard::glSetMaterial() const {
+
+}
+
+Vec3f CheckerBoard::getSpecularColor() const {
+    return Vec3f();
+}
+
+Vec3f CheckerBoard::getReflectiveColor() const {
+    return Vec3f();
+}
+
+Vec3f CheckerBoard::getTransparentColor() const {
+    return Vec3f();
+}
+
+float CheckerBoard::getIndexOfRefraction() const {
+    return 0;
+}
+
+CheckerBoard::~CheckerBoard() {
+
+}
+
+
+Noise::Noise() {
+
+}
+
+Noise::Noise(Matrix *m, Material *mat1, Material *mat2, int octaves) {
+    this->world_to_texture = m;
+    this->material_ptr_a = mat1;
+    this->material_ptr_b = mat2;
+    this->octaves = octaves;
+}
+
+Vec3f Noise::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const {
+    return Vec3f();
+}
+
+void Noise::glSetMaterial() const {
+
+}
+
+Vec3f Noise::getSpecularColor() const {
+    return Vec3f();
+}
+
+Vec3f Noise::getReflectiveColor() const {
+    return Vec3f();
+}
+
+Vec3f Noise::getTransparentColor() const {
+    return Vec3f();
+}
+
+float Noise::getIndexOfRefraction() const {
+    return 0;
+}
+
+Noise::~Noise() {
+
+}
+
+
+Marble::Marble(Matrix *m, Material *mat1, Material *mat2, int octaves, float frequency, float amplitude) {
+
+}
+
+
+Wood::Wood(Matrix *m, Material *mat1, Material *mat2, int octaves, float frequency, float amplitude) {
+
+}

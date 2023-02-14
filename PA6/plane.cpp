@@ -2,6 +2,7 @@
 
 #include "hit.h"
 #include "material.h"
+#include "raytracing_stats.h"
 
 Plane::Plane() = default;
 
@@ -29,6 +30,9 @@ Plane::Plane(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
 }
 
 bool Plane::intersect(const Ray &r, Hit &h, float t_min) {
+    // Stats: Ray-Primitive intersection operation
+    RayTracingStats::IncrementNumIntersections();
+
     Vec3f ori = r.getOrigin(), dir = r.getDirection();
 
     // ray parallel with plane

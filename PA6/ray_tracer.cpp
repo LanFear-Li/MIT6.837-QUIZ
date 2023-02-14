@@ -1,6 +1,7 @@
 #include "ray_tracer.h"
 
 #include "rayTree.h"
+#include "raytracing_stats.h"
 #include "color.h"
 
 float f_clamp(float v, float min = 0, float max = 1) {
@@ -18,6 +19,8 @@ void RayTracer::init(InputParser *input, SceneParser *scene) {
         Group *group_ptr = scene_parser->getGroup();
         grid_ptr = new Grid(group_ptr->getBoundingBox(), input_parser->nx, input_parser->ny, input_parser->nz);
         group_ptr->insertIntoGrid(grid_ptr, nullptr);
+    } else {
+        grid_ptr = nullptr;
     }
 }
 
@@ -36,6 +39,13 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
     int width = output_image.Width(), height = output_image.Height();
     float depth_min = input_parser->depth_min;
     float depth_max = input_parser->depth_max;
+
+    // Stats: Before beginning computation
+    if (grid_ptr) {
+        RayTracingStats::Initialize(width, height, scene_parser->getGroup()->bbox_ptr, grid_ptr->nx, grid_ptr->ny, grid_ptr->nz);
+    } else {
+        RayTracingStats::Initialize(width, height, scene_parser->getGroup()->bbox_ptr, 0, 0, 0);
+    }
 
     // bottom_left -> (0, 0), upper_right -> (width, height)
     for (int j = 0; j < height; j++) {
@@ -68,6 +78,11 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
             normal_image.SetPixel(i, j, normal_color);
         }
     }
+
+    // Stats: End computation
+    if (input_parser->stats) {
+        RayTracingStats::PrintStatistics();
+    }
 }
 
 Vec3f RayTracer::mirrorDirection(const Vec3f &normal, const Vec3f &incoming) {
@@ -93,16 +108,20 @@ bool RayTracer::transmittedDirection(const Vec3f &normal, const Vec3f &incoming,
 }
 
 Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, float indexOfRefraction, Hit &hit) const {
+    if (bounces > input_parser->max_bounces || weight < input_parser->cutoff_weight) {
+        return {0, 0, 0};
+    }
+
+    // Stats: Non-shadow ray cast
+    RayTracingStats::IncrementNumNonShadowRays();
+
     Group *group_ptr = scene_parser->getGroup();
     Vec3f ambient_light = scene_parser->getAmbientLight();
     Vec3f background_color = scene_parser->getBackgroundColor();
     int light_num = scene_parser->getNumLights();
 
-    if (bounces > input_parser->max_bounces || weight < input_parser->cutoff_weight) {
-        return {0, 0, 0};
-    }
-
     Object3D *object;
+    // if with grid, using grid intersection for acceleration
     if (input_parser->visualize_grid) {
         object = grid_ptr;
     } else {
@@ -134,7 +153,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
             RayTree::SetMainSegment(ray, 0, t_stop);
         }
 
-        float epsilon = 1e-5;
+        float epsilon = 1e-3;
         for (int k = 0; k < light_num; k++) {
             Vec3f dir_to_light, light_color;
             float dis_to_light;
@@ -149,6 +168,9 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
                     continue;
                 } else {
                     RayTree::AddShadowSegment(ray_shadow, 0, dis_to_light);
+
+                    // Stats: Shadow ray cast
+                    RayTracingStats::IncrementNumShadowRays();
                 }
             }
             Vec3f add_color = material_ptr->Shade(ray, hit, dir_to_light, light_color);
@@ -198,6 +220,21 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
     }
 
     return color;
+}
+
+bool RayTracer::RayCast(Object3D *object, const Ray &r, Hit &h, float t_min) {
+    // no grid or visualize grid, using normal ray cast method(group or grid intersect)
+    if (!input_parser->with_grid || input_parser->visualize_grid) {
+        return object->intersect(r, h, t_min);
+    }
+
+    // otherwise, using fast ray cast method(grid then object intersect)
+    bool grid_intersected = object->intersect(r, h, t_min);
+    if (grid_intersected) {
+        
+    }
+
+    return false;
 }
 
 
