@@ -2,6 +2,8 @@
 
 #include "hit.h"
 #include "material.h"
+#include "grid.h"
+#include "transform.h"
 #include "raytracing_stats.h"
 
 Plane::Plane() = default;
@@ -81,5 +83,10 @@ void Plane::paint() {
 }
 
 void Plane::insertIntoGrid(Grid *g, Matrix *m) {
+    if (m) {
+        Transform *transform = new Transform(*m, this);
+        g->infinite_objects.push_back(transform);
+    }
 
+    g->infinite_objects.push_back(this);
 }

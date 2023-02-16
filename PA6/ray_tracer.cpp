@@ -129,7 +129,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
     }
 
     Vec3f color;
-    if (object->intersect(ray, hit, t_min)) {
+    if (RayCast(object, ray, hit, t_min)) {
         Material *material_ptr = hit.getMaterial();
         Vec3f object_color = material_ptr->getDiffuseColor();
         color = ambient_light * object_color;
@@ -163,7 +163,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
             if (input_parser->shadows) {
                 Ray ray_shadow(intersect, dir_to_light);
                 Hit hit_shadow;
-                if (object->intersect(ray_shadow, hit_shadow, epsilon) && dis_to_light > hit_shadow.getT()) {
+                if (RayCast(object, ray_shadow, hit_shadow, epsilon) && dis_to_light > hit_shadow.getT()) {
                     RayTree::AddShadowSegment(ray_shadow, 0, hit_shadow.getT());
                     continue;
                 } else {
@@ -222,19 +222,14 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
     return color;
 }
 
-bool RayTracer::RayCast(Object3D *object, const Ray &r, Hit &h, float t_min) {
+bool RayTracer::RayCast(Object3D *object, const Ray &r, Hit &h, float t_min) const {
     // no grid or visualize grid, using normal ray cast method(group or grid intersect)
     if (!input_parser->with_grid || input_parser->visualize_grid) {
         return object->intersect(r, h, t_min);
     }
 
     // otherwise, using fast ray cast method(grid then object intersect)
-    bool grid_intersected = object->intersect(r, h, t_min);
-    if (grid_intersected) {
-        
-    }
-
-    return false;
+    return grid_ptr->intersectObject(r, h, t_min);
 }
 
 

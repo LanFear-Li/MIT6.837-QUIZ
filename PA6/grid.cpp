@@ -107,6 +107,67 @@ bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
     return false;
 }
 
+bool Grid::intersectObject(const Ray &r, Hit &h, float t_min) {
+    MarchingInfo info;
+    initializeRayMarch(info, r, t_min);
+
+    if (info.hit_cell) {
+        info.hit_cell = false;
+
+        while (validate_index(info.grid_index)) {
+            int x = info.grid_index[0], y = info.grid_index[1], z = info.grid_index[2];
+            float t_next_min = fmin(info.t_next[0], fmin(info.t_next[1], info.t_next[2]));
+
+            // find the nearest object inside this cell
+            Hit hit_object_closest;
+            for (auto object: cell_state[x][y][z]) {
+                Hit hit_object;
+
+                if (object->intersect(r, hit_object, t_min)) {
+                    if (hit_object.getT() < t_next_min + epsilon) {
+                        info.hit_cell = true;
+
+                        if (hit_object_closest.getMaterial() == nullptr ||
+                            hit_object.getT() < hit_object_closest.getT()) {
+                            hit_object_closest = hit_object;
+                        }
+                    }
+                }
+            }
+
+            if (info.hit_cell) {
+                h = hit_object_closest;
+                break;
+            }
+
+            info.nextCell();
+        }
+    }
+
+    // intersect with infinite objects and find the nearest
+    bool infinite_intersected = false;
+    Hit hit_infinite_closest;
+    for (auto object : infinite_objects) {
+        Hit hit_infinite;
+        if (object->intersect(r, hit_infinite, t_min)) {
+            if (h.getMaterial() && hit_infinite.getT() >= h.getT()) {
+                continue;
+            }
+
+            if (hit_infinite_closest.getMaterial() == nullptr || hit_infinite.getT() < hit_infinite_closest.getT()) {
+                hit_infinite_closest = hit_infinite;
+                infinite_intersected = true;
+            }
+        }
+    }
+
+    if (infinite_intersected) {
+        h = hit_infinite_closest;
+    }
+
+    return info.hit_cell || infinite_intersected;
+}
+
 void Grid::paint() {
     // literate all cells and paint quads if cell is occupied
     for (int i = 0; i < nx; i++) {
@@ -209,7 +270,7 @@ void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const
 
     Vec3f point_hit;
     Vec3f point_start = r.pointAtParameter(t_min);
-    int enter_face_index;
+    int enter_face_index = -1;
     // check if point_start point is inside the grid
     if (validate_point(point_start)) {
         mi.hit_cell = true;
@@ -253,9 +314,11 @@ void Grid::initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const
             RayTree::AddHitCellFace(vertex[plane_index[i][0]], vertex[plane_index[i][1]], vertex[plane_index[i][2]],
                                     vertex[plane_index[i][3]], normals[i], material_ptr);
 
-            int x = enter_face_index;
-            RayTree::AddEnteredFace(vertex[plane_index[x][0]], vertex[plane_index[x][1]], vertex[plane_index[x][2]],
-                                    vertex[plane_index[x][3]], normals[i], material_ptr);
+            if (enter_face_index != -1) {
+                int x = enter_face_index;
+                RayTree::AddEnteredFace(vertex[plane_index[x][0]], vertex[plane_index[x][1]], vertex[plane_index[x][2]],
+                                        vertex[plane_index[x][3]], normals[i], material_ptr);
+            }
         }
     }
 }
@@ -278,8 +341,6 @@ bool Grid::validate_index(int *index) const {
 }
 
 bool Grid::validate_point(const Vec3f &p) const {
-    float epsilon = 1e-5;
-
     if (p.x() < minn.x() - epsilon || p.x() > maxn.x() + epsilon) return false;
     if (p.y() < minn.y() - epsilon || p.y() > maxn.y() + epsilon) return false;
     if (p.z() < minn.z() - epsilon || p.z() > maxn.z() + epsilon) return false;

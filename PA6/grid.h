@@ -31,6 +31,8 @@ public:
 
     bool intersect(const Ray &r, Hit &h, float t_min) override;
 
+    bool intersectObject(const Ray &r, Hit &h, float t_min);
+
     void paint() override;
 
     void initializeRayMarch(MarchingInfo &mi, const Ray &r, float t_min) const;
@@ -61,6 +63,10 @@ public:
     };
 
     PhongMaterial material_type[13];
+
+    object_list infinite_objects;
+
+    float epsilon = 1e-5;
 };
 
 #endif

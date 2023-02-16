@@ -96,7 +96,12 @@ void Transform::paint() {
 }
 
 void Transform::insertIntoGrid(Grid *g, Matrix *m) {
+    Matrix transform = this->mat;
+    if (m) {
+        transform = *m * transform;
+    }
 
+    object3d_ptr->insertIntoGrid(g, &transform);
 }
 
 Transform::~Transform() = default;
