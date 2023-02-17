@@ -2,6 +2,7 @@
 
 #include "hit.h"
 #include "boundingbox.h"
+#include "triangle.h"
 
 Transform::Transform(Matrix &m, Object3D *o) {
     mat = m;
@@ -21,33 +22,49 @@ Transform::Transform(Matrix &m, Object3D *o) {
     Vec3f minn, maxn;
     o->bbox_ptr->Get(minn, maxn);
 
-    // get transformed bbox
-    Vec3f p0(minn.x(), minn.y(), minn.z());
-    Vec3f p1(maxn.x(), minn.y(), minn.z());
-    Vec3f p2(minn.x(), maxn.y(), minn.z());
-    Vec3f p3(maxn.x(), maxn.y(), minn.z());
-    Vec3f p4(maxn.x(), minn.y(), maxn.z());
-    Vec3f p5(maxn.x(), minn.y(), maxn.z());
-    Vec3f p6(minn.x(), maxn.y(), maxn.z());
-    Vec3f p7(maxn.x(), maxn.y(), maxn.z());
+    // get transformed bbox, triangle should be handled separately
+    if (object3d_ptr->object_type == TRIANGLE) {
+        Triangle *triangle = (Triangle *) object3d_ptr;
 
-    mat.Transform(p0);
-    mat.Transform(p1);
-    mat.Transform(p2);
-    mat.Transform(p3);
-    mat.Transform(p4);
-    mat.Transform(p5);
-    mat.Transform(p6);
-    mat.Transform(p7);
+        Vec3f p0 = triangle->a;
+        Vec3f p1 = triangle->b;
+        Vec3f p2 = triangle->c;
 
-    bbox_ptr = new BoundingBox(p0, p0);
-    bbox_ptr->Extend(p1);
-    bbox_ptr->Extend(p2);
-    bbox_ptr->Extend(p3);
-    bbox_ptr->Extend(p4);
-    bbox_ptr->Extend(p5);
-    bbox_ptr->Extend(p6);
-    bbox_ptr->Extend(p7);
+        mat.Transform(p0);
+        mat.Transform(p1);
+        mat.Transform(p2);
+
+        bbox_ptr = new BoundingBox(p0, p0);
+        bbox_ptr->Extend(p1);
+        bbox_ptr->Extend(p2);
+    } else {
+        Vec3f p0(minn.x(), minn.y(), minn.z());
+        Vec3f p1(maxn.x(), minn.y(), minn.z());
+        Vec3f p2(minn.x(), maxn.y(), minn.z());
+        Vec3f p3(maxn.x(), maxn.y(), minn.z());
+        Vec3f p4(minn.x(), minn.y(), maxn.z());
+        Vec3f p5(maxn.x(), minn.y(), maxn.z());
+        Vec3f p6(minn.x(), maxn.y(), maxn.z());
+        Vec3f p7(maxn.x(), maxn.y(), maxn.z());
+
+        mat.Transform(p0);
+        mat.Transform(p1);
+        mat.Transform(p2);
+        mat.Transform(p3);
+        mat.Transform(p4);
+        mat.Transform(p5);
+        mat.Transform(p6);
+        mat.Transform(p7);
+
+        bbox_ptr = new BoundingBox(p0, p0);
+        bbox_ptr->Extend(p1);
+        bbox_ptr->Extend(p2);
+        bbox_ptr->Extend(p3);
+        bbox_ptr->Extend(p4);
+        bbox_ptr->Extend(p5);
+        bbox_ptr->Extend(p6);
+        bbox_ptr->Extend(p7);
+    }
 }
 
 bool Transform::intersect(const Ray &r, Hit &h, float t_min) {
@@ -96,6 +113,7 @@ void Transform::paint() {
 }
 
 void Transform::insertIntoGrid(Grid *g, Matrix *m) {
+    cout << "Transform: insert into grid" << endl;
     Matrix transform = this->mat;
     if (m) {
         transform = *m * transform;

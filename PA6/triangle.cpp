@@ -60,6 +60,12 @@ void Triangle::paint() {
 }
 
 void Triangle::insertIntoGrid(Grid *g, Matrix *m) {
+    if (m) {
+        cout << "Sphere: insert into grid" << endl;
+        Object3D::insertIntoGrid(g, m);
+        return;
+    }
+
     int min_idx[3], max_idx[3];
 
     g->get_index(bbox_ptr->getMin(), min_idx);
@@ -67,7 +73,7 @@ void Triangle::insertIntoGrid(Grid *g, Matrix *m) {
     for (int i = min_idx[0]; i <= max_idx[0]; i++) {
         for (int j = min_idx[1]; j <= max_idx[1]; j++) {
             for (int k = min_idx[2]; k <= max_idx[2]; k++) {
-                g->cell_state[i][j][k].push_back(this);
+                g->cell_bucket[i][j][k].push_back(this);
             }
         }
     }

@@ -51,7 +51,7 @@ public:
 
     Vec3f minn, maxn;
 
-    vector<vector<vector<object_list>>> cell_state;
+    vector<vector<vector<object_list>>> cell_bucket;
 
     int plane_index[6][4] = {
             {4, 5, 6, 7},

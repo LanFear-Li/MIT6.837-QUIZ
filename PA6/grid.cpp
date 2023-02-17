@@ -46,15 +46,15 @@ Grid::Grid(BoundingBox *bb, int nx, int ny, int nz) {
     minn = bb->getMin();
     maxn = bb->getMax();
 
-    cell_state.resize(nx);
+    cell_bucket.resize(nx);
     for (int i = 0; i < nx; i++) {
-        cell_state[i].resize(ny);
+        cell_bucket[i].resize(ny);
 
         for (int j = 0; j < ny; j++) {
-            cell_state[i][j].resize(nz);
+            cell_bucket[i][j].resize(nz);
 
             for (int k = 0; k < nz; k++) {
-                cell_state[i][j][k].clear();
+                cell_bucket[i][j][k].clear();
             }
         }
     }
@@ -82,7 +82,7 @@ bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
         while (validate_index(info.grid_index)) {
             int x = info.grid_index[0], y = info.grid_index[1], z = info.grid_index[2];
 
-            if (!cell_state[x][y][z].empty()) {
+            if (!cell_bucket[x][y][z].empty()) {
                 // this cell is opaque, may hit something
                 info.hit_cell = true;
 
@@ -90,7 +90,7 @@ bool Grid::intersect(const Ray &r, Hit &h, float t_min) {
                     hit_t_value = info.t_min;
                     hit_normal = info.cell_normal;
                     hit_opaque = true;
-                    object_count = cell_state[x][y][z].size();
+                    object_count = cell_bucket[x][y][z].size();
                 }
             }
 
@@ -120,7 +120,7 @@ bool Grid::intersectObject(const Ray &r, Hit &h, float t_min) {
 
             // find the nearest object inside this cell
             Hit hit_object_closest;
-            for (auto object: cell_state[x][y][z]) {
+            for (auto object: cell_bucket[x][y][z]) {
                 Hit hit_object;
 
                 if (object->intersect(r, hit_object, t_min)) {
@@ -173,7 +173,7 @@ void Grid::paint() {
     for (int i = 0; i < nx; i++) {
         for (int j = 0; j < ny; j++) {
             for (int k = 0; k < nz; k++) {
-                if (!cell_state[i][j][k].empty()) {
+                if (!cell_bucket[i][j][k].empty()) {
                     Vec3f vertex[8];
 
                     vertex[0] = minn + step * Vec3f(i + 0, j + 0, k + 1);
@@ -185,7 +185,7 @@ void Grid::paint() {
                     vertex[6] = minn + step * Vec3f(i + 1, j + 1, k + 0);
                     vertex[7] = minn + step * Vec3f(i + 0, j + 1, k + 0);
 
-                    int object_count = cell_state[i][j][k].size();
+                    int object_count = cell_bucket[i][j][k].size();
                     material_type[min(object_count, 13 - 1)].glSetMaterial();
                     glBegin(GL_QUADS);
                     // sequence: up, down

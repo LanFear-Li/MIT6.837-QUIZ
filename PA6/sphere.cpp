@@ -62,25 +62,27 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
 
 void Sphere::insertIntoGrid(Grid *g, Matrix *m) {
     if (m) {
+        cout << "Sphere: insert into grid" << endl;
+        Object3D::insertIntoGrid(g, m);
+        return;
+    }
 
-    } else {
-        int nx = g->nx;
-        int ny = g->ny;
-        int nz = g->nz;
-        Vec3f minn = g->minn, maxn = g->maxn;
-        Vec3f step = g->step;
-        float grid_radius = step.Length() / 2.0f;
+    int nx = g->nx;
+    int ny = g->ny;
+    int nz = g->nz;
+    Vec3f minn = g->minn, maxn = g->maxn;
+    Vec3f step = g->step;
+    float grid_radius = step.Length() / 2.0f;
 
-        for (int i = 0; i < nx; i++) {
-            for (int j = 0; j < ny; j++) {
-                for (int k = 0; k < nz; k++) {
-                    Vec3f grid_center(i + 0.5f, j + 0.5f, k + 0.5f);
-                    grid_center = minn + grid_center * step;
+    for (int i = 0; i < nx; i++) {
+        for (int j = 0; j < ny; j++) {
+            for (int k = 0; k < nz; k++) {
+                Vec3f grid_center(i + 0.5f, j + 0.5f, k + 0.5f);
+                grid_center = minn + grid_center * step;
 
-                    float distance = (grid_center - center).Length();
-                    if (distance < radius + grid_radius) {
-                        g->cell_state[i][j][k].push_back(this);
-                    }
+                float distance = (grid_center - center).Length();
+                if (distance < radius + grid_radius) {
+                    g->cell_bucket[i][j][k].push_back(this);
                 }
             }
         }
