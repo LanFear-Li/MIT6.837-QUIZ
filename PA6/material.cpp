@@ -1,5 +1,9 @@
 #include "material.h"
+
+#include <cmath>
+
 #include "glCanvas.h"
+#include "perlin_noise.h"
 
 Material::Material() = default;
 
@@ -26,13 +30,13 @@ Vec3f PhongMaterial::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLig
     Vec3f normal = hit.getNormal();
 
     // implement phong shading model: ambient + diffuse + specular
-    Vec3f diffuse_color = getDiffuseColor() * fmax(normal.Dot3(dirToLight), 0);
+    Vec3f diffuse_color = diffuseColor * fmax(normal.Dot3(dirToLight), 0);
 
     Vec3f v = ray.getDirection();
     v.Negate();
     Vec3f half_vec = v + dirToLight;
     half_vec.Normalize();
-    Vec3f specular_color = getSpecularColor() * powf(normal.Dot3(half_vec), exponent);
+    Vec3f specular_color = specularColor * powf(normal.Dot3(half_vec), exponent);
     return (diffuse_color + specular_color) * lightColor;
 }
 
@@ -40,14 +44,14 @@ void PhongMaterial::glSetMaterial() const {
     GLfloat one[4] = {1.0, 1.0, 1.0, 1.0};
     GLfloat zero[4] = {0.0, 0.0, 0.0, 0.0};
     GLfloat specular[4] = {
-            getSpecularColor().r(),
-            getSpecularColor().g(),
-            getSpecularColor().b(),
+            specularColor.r(),
+            specularColor.g(),
+            specularColor.b(),
             1.0};
     GLfloat diffuse[4] = {
-            getDiffuseColor().r(),
-            getDiffuseColor().g(),
-            getDiffuseColor().b(),
+            diffuseColor.r(),
+            diffuseColor.g(),
+            diffuseColor.b(),
             1.0};
 
     // NOTE: GL uses the Blinn Torrance version of Phong...
@@ -90,113 +94,192 @@ void PhongMaterial::glSetMaterial() const {
 #endif
 }
 
-Vec3f Material::getDiffuseColor() const {
+Vec3f Material::getDiffuseColor(const Vec3f &coord) const {
     return diffuseColor;
 }
 
-Vec3f PhongMaterial::getSpecularColor() const {
+Vec3f PhongMaterial::getSpecularColor(const Vec3f &coord) const {
     return specularColor;
 }
 
-Vec3f PhongMaterial::getReflectiveColor() const {
+Vec3f PhongMaterial::getReflectiveColor(const Vec3f &coord) const {
     return reflectiveColor;
 }
 
-Vec3f PhongMaterial::getTransparentColor() const {
+Vec3f PhongMaterial::getTransparentColor(const Vec3f &coord) const {
     return transparentColor;
 }
 
-float PhongMaterial::getIndexOfRefraction() const {
+float PhongMaterial::getIndexOfRefraction(const Vec3f &coord) const {
     return indexOfRefraction;
 }
 
 PhongMaterial::~PhongMaterial() = default;
 
 
-CheckerBoard::CheckerBoard() {
-
-}
+CheckerBoard::CheckerBoard() = default;
 
 CheckerBoard::CheckerBoard(Matrix *m, Material *mat1, Material *mat2) {
-    this->world_to_texture = m;
+    this->world_to_texture_mat = m;
     this->material_ptr_a = mat1;
     this->material_ptr_b = mat2;
 }
 
 Vec3f CheckerBoard::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const {
-    return Vec3f();
+    Vec3f intersect_point = hit.getIntersectionPoint();
+    return getMaterial(intersect_point)->Shade(ray, hit, dirToLight, lightColor);
 }
 
 void CheckerBoard::glSetMaterial() const {
-
+    // OpenGL has no procedural texturing, just call the first material's method
+    this->material_ptr_a->glSetMaterial();
 }
 
-Vec3f CheckerBoard::getSpecularColor() const {
-    return Vec3f();
+Material *CheckerBoard::getMaterial(const Vec3f &coord) const {
+    Vec3f point = getTextureCoord(coord);
+
+    int index = int(floor(point.x()) + floor(point.y()) + floor(point.z())) % 2;
+    if (!index) {
+        return this->material_ptr_a;
+    } else {
+        return this->material_ptr_b;
+    }
 }
 
-Vec3f CheckerBoard::getReflectiveColor() const {
-    return Vec3f();
+Vec3f CheckerBoard::getTextureCoord(const Vec3f &coord) const {
+    Vec3f point = coord;
+    this->world_to_texture_mat->Transform(point);
+    return point;
 }
 
-Vec3f CheckerBoard::getTransparentColor() const {
-    return Vec3f();
+Vec3f CheckerBoard::getSpecularColor(const Vec3f &coord) const {
+    return getMaterial(coord)->getSpecularColor(coord);
 }
 
-float CheckerBoard::getIndexOfRefraction() const {
-    return 0;
+Vec3f CheckerBoard::getReflectiveColor(const Vec3f &coord) const {
+    return getMaterial(coord)->getReflectiveColor(coord);
 }
 
-CheckerBoard::~CheckerBoard() {
-
+Vec3f CheckerBoard::getTransparentColor(const Vec3f &coord) const {
+    return getMaterial(coord)->getTransparentColor(coord);
 }
 
-
-Noise::Noise() {
-
+float CheckerBoard::getIndexOfRefraction(const Vec3f &coord) const {
+    return getMaterial(coord)->getIndexOfRefraction(coord);
 }
+
+CheckerBoard::~CheckerBoard() = default;
+
+
+Noise::Noise() = default;
 
 Noise::Noise(Matrix *m, Material *mat1, Material *mat2, int octaves) {
-    this->world_to_texture = m;
+    this->world_to_texture_mat = m;
     this->material_ptr_a = mat1;
     this->material_ptr_b = mat2;
     this->octaves = octaves;
+
+    this->range = 1.0f;
+    this->offset = 0.5f;
 }
 
 Vec3f Noise::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const {
-    return Vec3f();
+    Vec3f color_a = this->material_ptr_a->Shade(ray, hit, dirToLight, lightColor);
+    Vec3f color_b = this->material_ptr_b->Shade(ray, hit, dirToLight, lightColor);
+
+    Vec3f intersect = getTextureCoord(hit.getIntersectionPoint());
+    float noise = noise_clamp(intersect);
+    return color_lerp(color_a, color_b, noise);
 }
 
 void Noise::glSetMaterial() const {
-
+    // OpenGL has no procedural texturing, just call the first material's method
+    this->material_ptr_a->glSetMaterial();
 }
 
-Vec3f Noise::getSpecularColor() const {
-    return Vec3f();
+Vec3f Noise::getTextureCoord(const Vec3f &coord) const {
+    Vec3f point = coord;
+    this->world_to_texture_mat->Transform(point);
+    return point;
 }
 
-Vec3f Noise::getReflectiveColor() const {
-    return Vec3f();
+float Noise::noise_calculate(const Vec3f &coord) const {
+    Vec3f cur_coord = coord;
+    float noise = 0.0f;
+    float cur_octave = 1.0f;
+
+    for (int i = 0; i < this->octaves; i++) {
+        noise += PerlinNoise::noise(cur_coord.x(), cur_coord.y(), cur_coord.z()) / cur_octave;
+
+        cur_coord *= 2.0f;
+        cur_octave *= 2.0f;
+    }
+
+    return noise;
 }
 
-Vec3f Noise::getTransparentColor() const {
-    return Vec3f();
+float Noise::noise_clamp(const Vec3f &coord) const {
+    float noise = (offset - noise_calculate(coord)) / range;
+    return min(1.0f, max(0.0f, noise));
 }
 
-float Noise::getIndexOfRefraction() const {
-    return 0;
+Vec3f Noise::color_lerp(const Vec3f &x, const Vec3f &y, float noise) const {
+    return x + noise * (y - x);
 }
 
-Noise::~Noise() {
-
+Vec3f Noise::getSpecularColor(const Vec3f &coord) const {
+    Vec3f p = getTextureCoord(coord);
+    return color_lerp(material_ptr_a->getDiffuseColor(p), material_ptr_b->getDiffuseColor(p), noise_clamp(coord));
 }
+
+Vec3f Noise::getReflectiveColor(const Vec3f &coord) const {
+    Vec3f p = getTextureCoord(coord);
+    return color_lerp(material_ptr_a->getReflectiveColor(p), material_ptr_b->getReflectiveColor(p), noise_clamp(coord));
+}
+
+Vec3f Noise::getTransparentColor(const Vec3f &coord) const {
+    Vec3f p = getTextureCoord(coord);
+    return color_lerp(material_ptr_a->getTransparentColor(p), material_ptr_b->getTransparentColor(p), noise_clamp(coord));
+}
+
+float Noise::getIndexOfRefraction(const Vec3f &coord) const {
+    Vec3f p = getTextureCoord(coord);
+    float x = material_ptr_a->getIndexOfRefraction(coord);
+    float y = material_ptr_b->getIndexOfRefraction(coord);
+    return x + noise_clamp(coord) * (y - x);
+}
+
+Noise::~Noise() = default;
 
 
 Marble::Marble(Matrix *m, Material *mat1, Material *mat2, int octaves, float frequency, float amplitude) {
+    this->world_to_texture_mat = m;
+    this->material_ptr_a = mat1;
+    this->material_ptr_b = mat2;
+    this->frequency = frequency;
+    this->amplitude = amplitude;
 
+    this->range = 2.0f;
+    this->offset = 1.0f;
+}
+
+float Marble::noise_calculate(const Vec3f &coord) const {
+    return sinf(this->frequency * coord.x() + this->amplitude * Noise::noise_calculate(coord));
 }
 
 
 Wood::Wood(Matrix *m, Material *mat1, Material *mat2, int octaves, float frequency, float amplitude) {
+    this->world_to_texture_mat = m;
+    this->material_ptr_a = mat1;
+    this->material_ptr_b = mat2;
+    this->frequency = frequency;
+    this->amplitude = amplitude;
 
+    this->range = 2.0f;
+    this->offset = 1.0f;
+}
+
+float Wood::noise_calculate(const Vec3f &coord) const {
+    // TODO: Wood Procedural Material Implement
+    return sinf(this->frequency * coord.x() + this->amplitude * Noise::noise_calculate(coord));
 }

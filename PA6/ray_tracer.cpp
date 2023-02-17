@@ -131,12 +131,13 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
     Vec3f color;
     if (RayCast(object, ray, hit, t_min)) {
         Material *material_ptr = hit.getMaterial();
-        Vec3f object_color = material_ptr->getDiffuseColor();
-        color = ambient_light * object_color;
-
         Vec3f normal = hit.getNormal();
         Vec3f intersect = hit.getIntersectionPoint();
         Vec3f ray_dir = ray.getDirection();
+
+        Vec3f object_color = material_ptr->getDiffuseColor(intersect);
+        color = ambient_light * object_color;
+
         // enable back face shading
         bool back_face = normal.Dot3(ray_dir) > 0;
         if (back_face) {
@@ -178,8 +179,8 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
         }
 
         // generate reflection color
-        Vec3f reflected_color = material_ptr->getReflectiveColor();
-        if (material_ptr->getReflectiveColor().Length() > epsilon) {
+        Vec3f reflected_color = material_ptr->getReflectiveColor(intersect);
+        if (material_ptr->getReflectiveColor(intersect).Length() > epsilon) {
             Vec3f dir_mirror = mirrorDirection(hit.getNormal(), ray.getDirection());
             Ray ray_reflect(intersect, dir_mirror);
             Hit hit_reflect;
@@ -194,9 +195,9 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
         }
 
         // generate refraction color
-        Vec3f refracted_color = material_ptr->getTransparentColor();
-        if (material_ptr->getTransparentColor().Length() > epsilon) {
-            float max_indexOfRefraction = back_face ? 1.0f : material_ptr->getIndexOfRefraction();
+        Vec3f refracted_color = material_ptr->getTransparentColor(intersect);
+        if (material_ptr->getTransparentColor(intersect).Length() > epsilon) {
+            float max_indexOfRefraction = back_face ? 1.0f : material_ptr->getIndexOfRefraction(intersect);
             Vec3f dir_transmit;
             bool is_transmitted = transmittedDirection(hit.getNormal(), ray.getDirection(), indexOfRefraction,
                                                        max_indexOfRefraction, dir_transmit);

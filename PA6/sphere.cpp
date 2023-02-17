@@ -62,7 +62,6 @@ bool Sphere::intersect(const Ray &r, Hit &h, float t_min) {
 
 void Sphere::insertIntoGrid(Grid *g, Matrix *m) {
     if (m) {
-        cout << "Sphere: insert into grid" << endl;
         Object3D::insertIntoGrid(g, m);
         return;
     }

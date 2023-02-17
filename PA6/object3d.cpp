@@ -15,9 +15,6 @@ BoundingBox* Object3D::getBoundingBox() const {
 }
 
 void Object3D::insertIntoGrid(Grid *g, Matrix *m) {
-    // do nothing
-    cout << "what happen?" << endl;
-
     Transform *transform = new Transform(*m, this);
 
     int min_idx[3], max_idx[3];

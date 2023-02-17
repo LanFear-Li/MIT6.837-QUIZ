@@ -52,7 +52,6 @@ Group::~Group() {
 
 void Group::paint() {
     for (int i = 0; i < num_objects; i++) {
-        cout << "Group painting: [" << i << "]" << endl;
         object3D_ptr[i]->paint();
     }
 }

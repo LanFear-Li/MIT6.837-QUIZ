@@ -19,15 +19,15 @@ public:
 
     virtual void glSetMaterial() const = 0;
 
-    Vec3f getDiffuseColor() const;
+    Vec3f getDiffuseColor(const Vec3f &coord) const;
 
-    virtual Vec3f getSpecularColor() const = 0;
+    virtual Vec3f getSpecularColor(const Vec3f &coord) const = 0;
 
-    virtual Vec3f getReflectiveColor() const = 0;
+    virtual Vec3f getReflectiveColor(const Vec3f &coord) const = 0;
 
-    virtual Vec3f getTransparentColor() const = 0;
+    virtual Vec3f getTransparentColor(const Vec3f &coord) const = 0;
 
-    virtual float getIndexOfRefraction() const = 0;
+    virtual float getIndexOfRefraction(const Vec3f &coord) const = 0;
 
     virtual ~Material();
 
@@ -46,13 +46,13 @@ public:
 
     void glSetMaterial() const override;
 
-    Vec3f getSpecularColor() const override;
+    Vec3f getSpecularColor(const Vec3f &coord) const override;
 
-    Vec3f getReflectiveColor() const override;
+    Vec3f getReflectiveColor(const Vec3f &coord) const override;
 
-    Vec3f getTransparentColor() const override;
+    Vec3f getTransparentColor(const Vec3f &coord) const override;
 
-    float getIndexOfRefraction() const override;
+    float getIndexOfRefraction(const Vec3f &coord) const override;
 
     ~PhongMaterial() override;
 
@@ -78,13 +78,17 @@ public:
 
     void glSetMaterial() const override;
 
-    Vec3f getSpecularColor() const override;
+    Material *getMaterial(const Vec3f &coord) const;
 
-    Vec3f getReflectiveColor() const override;
+    Vec3f getTextureCoord(const Vec3f &coord) const;
 
-    Vec3f getTransparentColor() const override;
+    Vec3f getSpecularColor(const Vec3f &coord) const override;
 
-    float getIndexOfRefraction() const override;
+    Vec3f getReflectiveColor(const Vec3f &coord) const override;
+
+    Vec3f getTransparentColor(const Vec3f &coord) const override;
+
+    float getIndexOfRefraction(const Vec3f &coord) const override;
 
     ~CheckerBoard() override;
 
@@ -93,7 +97,7 @@ protected:
 
     Material *material_ptr_b;
 
-    Matrix * world_to_texture;
+    Matrix *world_to_texture_mat;
 };
 
 class Noise : public virtual Material {
@@ -106,13 +110,21 @@ public:
 
     void glSetMaterial() const override;
 
-    Vec3f getSpecularColor() const override;
+    Vec3f getTextureCoord(const Vec3f &coord) const;
 
-    Vec3f getReflectiveColor() const override;
+    virtual float noise_calculate(const Vec3f &coord) const;
 
-    Vec3f getTransparentColor() const override;
+    float noise_clamp(const Vec3f &coord) const;
 
-    float getIndexOfRefraction() const override;
+    Vec3f color_lerp(const Vec3f &x, const Vec3f &y, float noise) const;
+
+    Vec3f getSpecularColor(const Vec3f &coord) const override;
+
+    Vec3f getReflectiveColor(const Vec3f &coord) const override;
+
+    Vec3f getTransparentColor(const Vec3f &coord) const override;
+
+    float getIndexOfRefraction(const Vec3f &coord) const override;
 
     ~Noise() override;
 
@@ -121,19 +133,35 @@ protected:
 
     Material *material_ptr_b;
 
-    Matrix * world_to_texture;
+    Matrix *world_to_texture_mat;
 
     int octaves;
+
+    float range;
+
+    float offset;
 };
 
 class Marble : public virtual Noise {
 public:
     Marble(Matrix *m, Material *mat1, Material *mat2, int octaves, float frequency, float amplitude);
+
+    float noise_calculate(const Vec3f &coord) const override;
+
+    float frequency;
+
+    float amplitude;
 };
 
 class Wood : public virtual Noise {
 public:
     Wood(Matrix *m, Material *mat1, Material *mat2, int octaves, float frequency, float amplitude);
+
+    float noise_calculate(const Vec3f &coord) const override;
+
+    float frequency;
+
+    float amplitude;
 };
 
 #endif

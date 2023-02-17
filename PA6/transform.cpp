@@ -113,7 +113,6 @@ void Transform::paint() {
 }
 
 void Transform::insertIntoGrid(Grid *g, Matrix *m) {
-    cout << "Transform: insert into grid" << endl;
     Matrix transform = this->mat;
     if (m) {
         transform = *m * transform;
