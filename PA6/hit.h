@@ -1,6 +1,8 @@
 #ifndef _PA_HIT_H_
 #define _PA_HIT_H_
 
+#include <limits>
+
 #include "vectors.h"
 #include "ray.h"
 
@@ -14,7 +16,7 @@ class Hit {
 public:
 
     // CONSTRUCTOR & DESTRUCTOR
-    Hit() { material = NULL; }
+    Hit() { material = NULL; t = numeric_limits<float>::max(); }
     Hit(float _t, Material *m, Vec3f n) {
         t = _t; material = m; normal = n; }
     Hit(const Hit &h) {

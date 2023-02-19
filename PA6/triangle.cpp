@@ -13,7 +13,7 @@ Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m) {
     this->c = c;
 
     Vec3f n;
-    Vec3f::Cross3(n, a - b, a - c);
+    Vec3f::Cross3(n, b - a, c - b);
     n.Normalize();
     normal = n;
 
@@ -31,11 +31,8 @@ bool Triangle::intersect(const Ray &r, Hit &h, float t_min) {
     // Stats: Ray-Primitive intersection operation
     RayTracingStats::IncrementNumIntersections();
 
-    Vec3f ori = r.getOrigin(), dir = r.getDirection();
-
-    float dis = a.Dot3(normal);
     Hit hit;
-    Plane plane(normal, dis, material_ptr);
+    Plane plane(a, b, c, material_ptr);
     if (plane.intersect(r, hit, t_min) && hit.getT() >= t_min) {
         Vec3f p = hit.getIntersectionPoint();
 
@@ -91,7 +88,8 @@ bool Triangle::inside(const Vec3f &p) const {
     Vec3f::Cross3(cross, ca, cp);
     float cross_c = normal.Dot3(cross);
 
-    if (cross_a > 0 && cross_b > 0 && cross_c > 0 || cross_a <= 0 && cross_b <= 0 && cross_c <= 0) {
+    float epsilon = -1e-5;
+    if (cross_a > epsilon && cross_b > epsilon && cross_c > epsilon) {
         return true;
     }
 

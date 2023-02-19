@@ -93,11 +93,11 @@ public:
     ~CheckerBoard() override;
 
 protected:
-    Material *material_ptr_a;
+    Material *material_ptr_a{};
 
-    Material *material_ptr_b;
+    Material *material_ptr_b{};
 
-    Matrix *world_to_texture_mat;
+    Matrix *world_to_texture_mat{};
 };
 
 class Noise : public virtual Material {
@@ -129,17 +129,17 @@ public:
     ~Noise() override;
 
 protected:
-    Material *material_ptr_a;
+    Material *material_ptr_a{};
 
-    Material *material_ptr_b;
+    Material *material_ptr_b{};
 
-    Matrix *world_to_texture_mat;
+    Matrix *world_to_texture_mat{};
 
-    int octaves;
+    int octaves{};
 
-    float range;
+    float range{};
 
-    float offset;
+    float offset{};
 };
 
 class Marble : public virtual Noise {

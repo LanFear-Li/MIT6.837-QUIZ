@@ -31,11 +31,11 @@ public:
 
 class OrthographicCamera : public virtual Camera {
 public:
-    OrthographicCamera(Vec3f c, Vec3f d, Vec3f u, float s);
+    OrthographicCamera(const Vec3f& c, const Vec3f& d, const Vec3f& u, float s);
 
     void glInit(int w, int h) override;
 
-    void glPlaceCamera(void) override;
+    void glPlaceCamera() override;
 
     void dollyCamera(float dist) override;
 

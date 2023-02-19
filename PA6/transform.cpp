@@ -83,20 +83,23 @@ bool Transform::intersect(const Ray &r, Hit &h, float t_min) {
     dir.Normalize();
 
     Ray trans_ray(ori, dir);
-    if (object3d_ptr->intersect(trans_ray, h, t_min)) {
+    Hit trans_hit;
+    if (object3d_ptr->intersect(trans_ray, trans_hit, t_min)) {
         // transform the normal from object space to world space
-        Vec3f normal = h.getNormal();
+        Vec3f normal = trans_hit.getNormal();
         Vec4f normal_homo(normal, 0.0f);
         mat_trans_inv.Transform(normal_homo);
         normal = Vec3f(normal_homo.x(), normal_homo.y(), normal_homo.z());
         normal.Normalize();
 
         // transform the depth from object space to world space
-        float t = h.getT();
+        float t = trans_hit.getT();
         t = t / dir_depth;
 
-        h.set(t, h.getMaterial(), normal, trans_ray);
-        return true;
+        if (t >= t_min) {
+            h.set(t, trans_hit.getMaterial(), normal, r);
+            return true;
+        }
     }
 
     return false;

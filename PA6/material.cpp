@@ -138,7 +138,7 @@ void CheckerBoard::glSetMaterial() const {
 Material *CheckerBoard::getMaterial(const Vec3f &coord) const {
     Vec3f point = getTextureCoord(coord);
 
-    int index = int(floor(point.x()) + floor(point.y()) + floor(point.z())) % 2;
+    int index = int(fabsf(floorf(point.x()) + floorf(point.y()) + floorf(point.z()))) % 2;
     if (!index) {
         return this->material_ptr_a;
     } else {
@@ -256,6 +256,7 @@ Marble::Marble(Matrix *m, Material *mat1, Material *mat2, int octaves, float fre
     this->world_to_texture_mat = m;
     this->material_ptr_a = mat1;
     this->material_ptr_b = mat2;
+    this->octaves = octaves;
     this->frequency = frequency;
     this->amplitude = amplitude;
 
@@ -272,6 +273,7 @@ Wood::Wood(Matrix *m, Material *mat1, Material *mat2, int octaves, float frequen
     this->world_to_texture_mat = m;
     this->material_ptr_a = mat1;
     this->material_ptr_b = mat2;
+    this->octaves = octaves;
     this->frequency = frequency;
     this->amplitude = amplitude;
 

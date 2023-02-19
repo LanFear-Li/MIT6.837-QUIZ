@@ -5,29 +5,21 @@ Camera::Camera() = default;
 Camera::~Camera() = default;
 
 
-OrthographicCamera::OrthographicCamera(Vec3f c, Vec3f d, Vec3f u, float s) {
-    Vec3f h;
+OrthographicCamera::OrthographicCamera(const Vec3f& c, const Vec3f& d, const Vec3f& u, float s) {
+    center = c;
+    direction = d;
+    direction.Normalize();
 
     origin_up = u;
     origin_up.Normalize();
 
-    d.Normalize();
-    Vec3f::Cross3(h, d, u);
-    h.Normalize();
-    Vec3f::Cross3(u, h, d);
-    u.Normalize();
+    Vec3f::Cross3(horizontal, direction, origin_up);
+    horizontal.Normalize();
+    Vec3f::Cross3(up, horizontal, direction);
+    up.Normalize();
 
-    center = c;
-    direction = d;
-    up = u;
-    horizontal = h;
     size = s;
 }
-
-// ====================================================================
-// Create an orthographic camera with the appropriate dimensions that
-// crops the screen in the narrowest dimension.
-// ====================================================================
 
 void OrthographicCamera::glInit(int w, int h) {
     glMatrixMode(GL_PROJECTION);
@@ -45,7 +37,7 @@ void OrthographicCamera::glInit(int w, int h) {
 // Place an orthographic camera within an OpenGL scene
 // ====================================================================
 
-void OrthographicCamera::glPlaceCamera(void) {
+void OrthographicCamera::glPlaceCamera() {
     gluLookAt(center.x(), center.y(), center.z(),
               center.x() + direction.x(), center.y() + direction.y(), center.z() + direction.z(),
               up.x(), up.y(), up.z());
@@ -77,10 +69,7 @@ void OrthographicCamera::dollyCamera(float dist) {
 // ====================================================================
 
 void OrthographicCamera::truckCamera(float dx, float dy) {
-    Vec3f screenUp;
-    Vec3f::Cross3(screenUp, horizontal, direction);
-
-    center += horizontal * dx + screenUp * dy;
+    center += horizontal * dx + up * dy;
 }
 
 // ====================================================================
@@ -119,28 +108,24 @@ Ray OrthographicCamera::generateRay(Vec2f point) {
 }
 
 float OrthographicCamera::getTMin() const {
-    return -100.0f;
+    return numeric_limits<float>::lowest();
 }
 
 OrthographicCamera::~OrthographicCamera() = default;
 
 
 PerspectiveCamera::PerspectiveCamera(Vec3f &c, Vec3f &d, Vec3f &u, float fov_angle) {
-    Vec3f h;
+    center = c;
+    direction = d;
+    direction.Normalize();
 
     origin_up = u;
     origin_up.Normalize();
 
-    d.Normalize();
-    Vec3f::Cross3(h, d, u);
-    h.Normalize();
-    Vec3f::Cross3(u, h, d);
-    u.Normalize();
-
-    center = c;
-    direction = d;
-    up = u;
-    horizontal = h;
+    Vec3f::Cross3(horizontal, direction, origin_up);
+    horizontal.Normalize();
+    Vec3f::Cross3(up, horizontal, direction);
+    up.Normalize();
 
     fov = fov_angle;
     near = 2 * tan(fov / 2);
@@ -193,14 +178,7 @@ void PerspectiveCamera::dollyCamera(float dist) {
 // ====================================================================
 
 void PerspectiveCamera::truckCamera(float dx, float dy) {
-    Vec3f horizontal;
-    Vec3f::Cross3(horizontal, direction, up);
-    horizontal.Normalize();
-
-    Vec3f screenUp;
-    Vec3f::Cross3(screenUp, horizontal, direction);
-
-    center += horizontal * dx + screenUp * dy;
+    center += horizontal * dx + up * dy;
 }
 
 // ====================================================================

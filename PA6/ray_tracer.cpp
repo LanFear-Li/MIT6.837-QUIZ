@@ -30,8 +30,9 @@ RayTracer::~RayTracer() {
 }
 
 void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_image) const {
-    output_image.SetAllPixels(scene_parser->getBackgroundColor());
+    output_image.SetAllPixels(BLACK);
     normal_image.SetAllPixels(BLACK);
+    depth_image.SetAllPixels(BLACK);
 
     Camera *camera = scene_parser->getCamera();
     Vec3f ambient_color = scene_parser->getAmbientLight();
@@ -50,8 +51,12 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
     // bottom_left -> (0, 0), upper_right -> (width, height)
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
-            float u = i * 1.0f / width;
-            float v = j * 1.0f / height;
+            // pixel margin for regulation
+            float size = max(width, height);
+            float margin_x = (size - width) / 2.0f;
+            float margin_y = (size - height) / 2.0f;
+            float u = (i * 1.0f + margin_x) / size;
+            float v = (j * 1.0f + margin_y) / size;
 
             Hit hit;
             Ray ray = camera->generateRay(Vec2f(u, v));
@@ -154,7 +159,7 @@ Vec3f RayTracer::traceRay(Ray &ray, float t_min, int bounces, float weight, floa
             RayTree::SetMainSegment(ray, 0, t_stop);
         }
 
-        float epsilon = 1e-3;
+        float epsilon = 1e-5;
         for (int k = 0; k < light_num; k++) {
             Vec3f dir_to_light, light_color;
             float dis_to_light;
