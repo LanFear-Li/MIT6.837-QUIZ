@@ -89,6 +89,13 @@ public:
     data[0] /= f;
     data[1] /= f;
     return *this; }
+
+  friend Vec2f operator+(const Vec2f &v1, const Vec2f &v2) {
+    Vec2f v3; Add(v3,v1,v2);
+    return v3; }
+  friend Vec2f operator*(const Vec2f &v1, const Vec2f &v2) {
+    Vec2f v3; Mult(v3,v1,v2);
+    return v3; }
   
   // OPERATIONS
   float Dot2(const Vec2f &V) const {
@@ -113,6 +120,9 @@ public:
   static void WeightedSum(Vec2f &a, const Vec2f &b, float c, const Vec2f &d, float e ) {
     a.data[0] = b.data[0] * c + d.data[0] * e;
     a.data[1] = b.data[1] * c + d.data[1] * e; }
+  static void Mult(Vec2f &a, const Vec2f &b, const Vec2f &c ) {
+    a.data[0] = b.data[0] * c.data[0];
+    a.data[1] = b.data[1] * c.data[1]; }
 
   // INPUT / OUTPUT
   void Write(FILE *F = stdout) const {

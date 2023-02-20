@@ -73,6 +73,38 @@ InputParser::InputParser(int argc, char **argv) {
             visualize_grid = true;
         } else if (!strcmp(argv[i], "-stats")) {
             stats = true;
+        } else if (!strcmp(argv[i], "-random_samples")) {
+            sample_type = argv[i];
+
+            i++;
+            assert (i < argc);
+            num_samples = atoi(argv[i]);
+        } else if (!strcmp(argv[i], "-random_filter")) {
+            filter_type = argv[i];
+
+            i++;
+            assert (i < argc);
+            filter_param = atof(argv[i]);
+        } else if (!strcmp(argv[i], "-render_samples")) {
+            render_samples = true;
+
+            i++;
+            assert (i < argc);
+            sample_file = argv[i];
+
+            i++;
+            assert (i < argc);
+            sample_zoom_factor = atoi(argv[i]);
+        } else if (!strcmp(argv[i], "-render_filter")) {
+            render_filter = true;
+
+            i++;
+            assert (i < argc);
+            filter_file = argv[i];
+
+            i++;
+            assert (i < argc);
+            filter_zoom_factor = atoi(argv[i]);
         } else {
             printf("whoops error with command line argument %d: '%s'\n", i, argv[i]);
             assert(0);

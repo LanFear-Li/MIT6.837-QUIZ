@@ -1,5 +1,5 @@
-#ifndef _PA__SAMPLE_H_
-#define _PA__SAMPLE_H_
+#ifndef _PA_SAMPLE_H_
+#define _PA_SAMPLE_H_
 
 #include "vectors.h"
 

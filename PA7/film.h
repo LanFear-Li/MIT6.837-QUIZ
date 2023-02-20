@@ -1,5 +1,5 @@
-#ifndef _PA__FILM_H_
-#define _PA__FILM_H_
+#ifndef _PA_FILM_H_
+#define _PA_FILM_H_
 
 #include <assert.h>
 

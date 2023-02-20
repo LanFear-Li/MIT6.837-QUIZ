@@ -2,6 +2,9 @@
 
 #include "rayTree.h"
 #include "raytracing_stats.h"
+#include "film.h"
+#include "sampler.h"
+#include "filter.h"
 #include "color.h"
 
 float f_clamp(float v, float min = 0, float max = 1) {
@@ -37,9 +40,29 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
     Camera *camera = scene_parser->getCamera();
     Vec3f ambient_color = scene_parser->getAmbientLight();
 
-    int width = output_image.Width(), height = output_image.Height();
+    int width = input_parser->width;
+    int height = input_parser->height;
     float depth_min = input_parser->depth_min;
     float depth_max = input_parser->depth_max;
+    int sample_num = input_parser->num_samples;
+
+    Film *film;
+    Sampler *sampler;
+    Filter *filter;
+
+    if (input_parser->sample_type) {
+        film = new Film(width, height, sample_num);
+        sampler = Sampler::getSampler(input_parser->sample_type, sample_num);
+    } else {
+        film = new Film(width, height, 1);
+        sampler = new UniformSampler(1);
+    }
+
+    if (input_parser->filter_type) {
+        filter = Filter::getFilter(input_parser->filter_type, input_parser->filter_param);
+    } else {
+        filter = new BoxFilter(0);
+    }
 
     // Stats: Before beginning computation
     if (grid_ptr) {
@@ -57,24 +80,29 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
             float margin_y = (size - height) / 2.0f;
             float u = (i * 1.0f + margin_x) / size;
             float v = (j * 1.0f + margin_y) / size;
+            Vec2f pixel(u, v);
+            Vec2f pixel_size(1.0f / width, 1.0f / height);
 
+            // super sampling for anti-aliasing
+            // without AA, sample one and only, also without filter
             Hit hit;
-            Ray ray = camera->generateRay(Vec2f(u, v));
+            for (int k = 0; k < sample_num; k++) {
+                Vec2f offset = sampler->getSamplePosition(k);
+                Ray ray = camera->generateRay(pixel + offset * pixel_size);
+                Vec3f color = traceRay(ray, camera->getTMin(), 0, 1.0f, 1.0f, hit);
+                film->setSample(i, j, k, offset, color);
+            }
+            output_image.SetPixel(i, j, filter->getColor(i, j, film));
 
-            // phong model with ray tracing
-            Vec3f render_color = traceRay(ray, camera->getTMin(), 0, 1.0f, 1.0f, hit);
-            output_image.SetPixel(i, j, render_color);
-
+            // depth_image & normal_image visualization
             float t = hit.getT();
             Vec3f normal = hit.getNormal();
 
-            // depth_image visualization
             t = f_clamp(t, depth_min, depth_max);
             t = 1.0f - (t - depth_min) / (depth_max - depth_min);
             Vec3f depth_color(t, t, t);
             depth_image.SetPixel(i, j, depth_color);
 
-            // normal_image visualization
             // x, y and z [-1, 1] -> [0, 1]
             float x = fabs(normal.x());
             float y = fabs(normal.y());
@@ -82,6 +110,15 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
             Vec3f normal_color(x, y, z);
             normal_image.SetPixel(i, j, normal_color);
         }
+    }
+
+    // sample_image & filter_image visualization
+    if (input_parser->render_samples) {
+        film->renderSamples(input_parser->sample_file, input_parser->sample_zoom_factor);
+    }
+
+    if (input_parser->render_filter) {
+        film->renderFilter(input_parser->filter_file, input_parser->filter_zoom_factor, filter);
     }
 
     // Stats: End computation

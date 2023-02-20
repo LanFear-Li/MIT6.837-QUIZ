@@ -19,6 +19,8 @@ public:
     char *output_file = nullptr;
     char *depth_file = nullptr;
     char *normal_file = nullptr;
+    char *sample_file = nullptr;
+    char *filter_file = nullptr;
 
     bool shade_back = false;
     bool gui = false;
@@ -34,6 +36,16 @@ public:
     bool visualize_grid = false;
 
     bool stats = false;
+
+    char *sample_type = nullptr;
+    int num_samples{};
+    bool render_samples = false;
+    int sample_zoom_factor{};
+
+    char *filter_type = nullptr;
+    float filter_param{};
+    bool render_filter = false;
+    int filter_zoom_factor{};
 };
 
 #endif

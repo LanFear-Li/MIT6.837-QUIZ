@@ -17,7 +17,10 @@ void render_magic() {
     ray_tracer.render(render_image, depth_image, normal_image);
 
     // save ray caster render, depth image and normal image
-    render_image.SaveTGA(input_parser.output_file);
+    if (input_parser.output_file != nullptr) {
+        render_image.SaveTGA(input_parser.output_file);
+    }
+
     if (input_parser.depth_file != nullptr) {
         depth_image.SaveTGA(input_parser.depth_file);
     }
