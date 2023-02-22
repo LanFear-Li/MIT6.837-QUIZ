@@ -44,15 +44,14 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
     int height = input_parser->height;
     float depth_min = input_parser->depth_min;
     float depth_max = input_parser->depth_max;
-    int sample_num = input_parser->num_samples;
 
     Film *film;
     Sampler *sampler;
     Filter *filter;
 
     if (input_parser->sample_type) {
-        film = new Film(width, height, sample_num);
-        sampler = Sampler::getSampler(input_parser->sample_type, sample_num);
+        film = new Film(width, height, input_parser->num_samples);
+        sampler = Sampler::getSampler(input_parser->sample_type, input_parser->num_samples);
     } else {
         film = new Film(width, height, 1);
         sampler = new UniformSampler(1);
@@ -61,7 +60,7 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
     if (input_parser->filter_type) {
         filter = Filter::getFilter(input_parser->filter_type, input_parser->filter_param);
     } else {
-        filter = new BoxFilter(0);
+        filter = new BoxFilter(0.5f);
     }
 
     // Stats: Before beginning computation
@@ -86,7 +85,7 @@ void RayTracer::render(Image &output_image, Image &depth_image, Image &normal_im
             // super sampling for anti-aliasing
             // without AA, sample one and only, also without filter
             Hit hit;
-            for (int k = 0; k < sample_num; k++) {
+            for (int k = 0; k < film->getNumSamples(); k++) {
                 Vec2f offset = sampler->getSamplePosition(k);
                 Ray ray = camera->generateRay(pixel + offset * pixel_size);
                 Vec3f color = traceRay(ray, camera->getTMin(), 0, 1.0f, 1.0f, hit);

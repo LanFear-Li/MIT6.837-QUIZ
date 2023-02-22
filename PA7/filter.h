@@ -21,29 +21,35 @@ public:
 
 class BoxFilter : public Filter {
 public:
-    explicit BoxFilter(float filter_param);
+    explicit BoxFilter(float radius);
 
     float getWeight(float x, float y) override;
 
     int getSupportRadius() override;
+
+    float radius;
 };
 
 class TentFilter : public Filter {
 public:
-    explicit TentFilter(float filter_param);
+    explicit TentFilter(float radius);
 
     float getWeight(float x, float y) override;
 
     int getSupportRadius() override;
+
+    float radius;
 };
 
 class GaussianFilter : public Filter {
 public:
-    explicit GaussianFilter(float filter_param);
+    explicit GaussianFilter(float sigma);
 
     float getWeight(float x, float y) override;
 
     int getSupportRadius() override;
+
+    float sigma;
 };
 
 #endif

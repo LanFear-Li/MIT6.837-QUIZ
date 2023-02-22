@@ -61,6 +61,9 @@ public:
   void Negate() {
     data[0] = -data[0];
     data[1] = -data[1]; }
+  void Clamp(float low = 0, float high = 1) {
+    if (data[0] < low) data[0] = low;  if (data[0] > high) data[0] = high;
+    if (data[1] < low) data[1] = low;  if (data[1] > high) data[1] = high;}
 
   // OVERLOADED OPERATORS
   Vec2f& operator=(const Vec2f &V) {

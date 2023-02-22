@@ -73,13 +73,15 @@ InputParser::InputParser(int argc, char **argv) {
             visualize_grid = true;
         } else if (!strcmp(argv[i], "-stats")) {
             stats = true;
-        } else if (!strcmp(argv[i], "-random_samples")) {
+        } else if (!strcmp(argv[i], "-random_samples") || !strcmp(argv[i], "-uniform_samples") ||
+                   !strcmp(argv[i], "-jittered_samples")) {
             sample_type = argv[i];
 
             i++;
             assert (i < argc);
             num_samples = atoi(argv[i]);
-        } else if (!strcmp(argv[i], "-random_filter")) {
+        } else if (!strcmp(argv[i], "-box_filter") || !strcmp(argv[i], "-tent_filter") ||
+                   !strcmp(argv[i], "-gaussian_filter")) {
             filter_type = argv[i];
 
             i++;

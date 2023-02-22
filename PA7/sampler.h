@@ -20,9 +20,12 @@ public:
     explicit UniformSampler(int nSamples);
 
     Vec2f getSamplePosition(int n) override;
+
+    int rank;
+    float step;
 };
 
-class JitteredSampler : public Sampler {
+class JitteredSampler : public UniformSampler {
 public:
     explicit JitteredSampler(int nSamples);
 

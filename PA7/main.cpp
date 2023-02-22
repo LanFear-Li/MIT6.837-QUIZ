@@ -43,6 +43,7 @@ void raytrace_magic(float x, float y) {
 int main(int argc, char *argv[]) {
     // prepare input attributes and ray caster materials
     cout << "raytracer initializing..." << std::endl;
+    srand(time(nullptr));
     InputParser input_parser(argc, argv);
     SceneParser scene_parser(input_parser.input_file);
     ray_tracer.init(&input_parser, &scene_parser);
