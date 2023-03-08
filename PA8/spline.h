@@ -1,6 +1,9 @@
 #ifndef _PA_SPLINE_H_
 #define _PA_SPLINE_H_
 
+#include <iostream>
+#include <vector>
+
 #include "vectors.h"
 #include "arg_parser.h"
 #include "triangle_mesh.h"
@@ -24,6 +27,10 @@ public:
     virtual void deleteControlPoint(int selectedPoint) = 0;
 
     virtual TriangleMesh* OutputTriangles(ArgParser *args) = 0;
+
+    int point_num;
+
+    vector<Vec3f> ctrl_point;
 };
 
 #endif

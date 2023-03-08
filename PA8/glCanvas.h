@@ -3,6 +3,9 @@
 
 #include <stdlib.h>
 
+#include <GL/gl.h>
+#include <GL/glut.h>
+
 class ArgParser;
 class SplineParser;
 class Spline;

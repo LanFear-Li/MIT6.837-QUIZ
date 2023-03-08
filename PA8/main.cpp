@@ -1,24 +1,18 @@
-#include <stdio.h>
-#include <assert.h>
-using namespace std;
-
 #include "arg_parser.h"
 #include "glCanvas.h"
 #include "spline_parser.h"
 
-// ====================================================================
-// ====================================================================
-
 int main(int argc, char *argv[]) {
 
     // parse the command line arguments & input file
-    ArgParser *args = new ArgParser(argc,argv);
-    SplineParser* splines = new SplineParser(args->input_file);
+    auto *args = new ArgParser(argc,argv);
+    auto* splines = new SplineParser(args->input_file);
 
     // launch curve editor!
     if (args->gui) {
+        glutInit(&argc, argv);
         GLCanvas glcanvas;
-        glcanvas.initialize(args,splines);
+        GLCanvas::initialize(args,splines);
         // this never returns...
     }
 
@@ -32,8 +26,3 @@ int main(int argc, char *argv[]) {
     delete splines;
     return 0;
 }
-
-// ====================================================================
-// ====================================================================
-
-

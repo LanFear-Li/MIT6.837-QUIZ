@@ -21,6 +21,7 @@ public:
     Matrix() { Clear(); }
     Matrix(const Matrix& m);
     Matrix(const float *m);
+    Matrix(const Vec4f *v);
     ~Matrix() {}
 
     // ACCESSORS

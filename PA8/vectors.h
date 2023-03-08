@@ -153,6 +153,8 @@ public:
         d0 = data[0];
         d1 = data[1];
         d2 = data[2]; }
+    const float *GetAll() const {
+        return data; }
     float operator[](int i) const {
         assert (i >= 0 && i < 3);
         return data[i]; }
@@ -351,6 +353,7 @@ public:
     float x() const { return data[0]; }
     float y() const { return data[1]; }
     float z() const { return data[2]; }
+    Vec3f xyz() const { return Vec3f(data[0], data[1], data[2]); }
     float w() const { return data[3]; }
     float r() const { return data[0]; }
     float g() const { return data[1]; }
