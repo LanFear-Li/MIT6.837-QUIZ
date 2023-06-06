@@ -63,13 +63,13 @@ std::vector<CurveSection> Curve::getSections() {
 }
 
 
-static float Bezier_PARA[16] = {
+static float Bernstein_Bezier[16] = {
         -1.f, 3.f, -3.f, 1.f,
         3.f, -6.f, 3.f, 0.f,
         -3.f, 3.f, 0.f, 0.f,
         1.f, 0.f, 0.f, 0.f
 };
-Matrix BezierCurve::_B = Matrix(Bezier_PARA);
+Matrix BezierCurve::_B = Matrix(Bernstein_Bezier);
 
 BezierCurve::BezierCurve(int num_vertices) {
     this->curve_type = "bezier";
@@ -100,8 +100,17 @@ void BezierCurve::generateSections() {
 BSplineCurve *BezierCurve::bezierToBSpline() {
     generateSections();
 
-    auto *spline = new BSplineCurve(this->point_num);
-    // TODO: Convert Bezier to BSpline
+    auto *bspline = new BSplineCurve(this->point_num);
+
+    Matrix B_bspline_i = *bspline->getB();
+    B_bspline_i.Inverse();
+    Matrix G_bspline = this->getSections()[0].G * *this->getB() * B_bspline_i;
+
+    for (int i = 0; i < this->point_num; i++) {
+        bspline->ctrl_point[i] = Vec3f(G_bspline.Get(0, i), G_bspline.Get(1, i), G_bspline.Get(2, i));
+    }
+
+    return bspline;
 }
 
 void BezierCurve::OutputBezier(FILE *file) {
@@ -113,14 +122,14 @@ void BezierCurve::OutputBSpline(FILE *file) {
 }
 
 
-static float BSpline_PARA[16] = {
+static float Bernstein_BSpline[16] = {
         -1.f, 3.f, -3.f, 1.f,
         3.f, -6.f, 0.f, 4.f,
         -3.f, 3.f, 3.f, 1.f,
         1.f, 0.f, 0.f, 0.f
 };
 
-Matrix BSplineCurve::mat_b = Matrix(BSpline_PARA) * (1.f / 6.f);
+Matrix BSplineCurve::basis_b = Matrix(Bernstein_BSpline) * (1.f / 6.f);
 
 BSplineCurve::BSplineCurve(int num_vertices) {
     this->curve_type = "bspline";
@@ -136,21 +145,36 @@ void BSplineCurve::set(int i, const Vec3f& vec) {
 }
 
 Matrix *BSplineCurve::getB() {
-    return &mat_b;
+    return &basis_b;
 }
 
 void BSplineCurve::generateSections() {
-
+    int section_num = (point_num - 1) / 3;
+    sections.resize(static_cast<unsigned long>(section_num));
+    for (int i = 0; i < section_num; ++i) {
+        int index = 3 * i;
+        generateSection(i, index);
+    }
 }
 
 BezierCurve *BSplineCurve::bSplineToBezier() {
-    return nullptr;
-}
+    generateSections();
 
-void BSplineCurve::OutputBezier(FILE *file) {
-    bSplineToBezier()->output(file);
+    auto *bezier = new BezierCurve(this->point_num);
+
+    Matrix B_bezier_i = *bezier->getB();
+    B_bezier_i.Inverse();
+    Matrix G_bezier = this->getSections()[0].G * *this->getB() * B_bezier_i;
+
+    for (int i = 0; i < this->point_num; i++) {
+        bezier->ctrl_point[i] = Vec3f(G_bezier.Get(0, i), G_bezier.Get(1, i), G_bezier.Get(2, i));
+    }
 }
 
 void BSplineCurve::OutputBSpline(FILE *file) {
     output(file);
+}
+
+void BSplineCurve::OutputBezier(FILE *file) {
+    bSplineToBezier()->output(file);
 }

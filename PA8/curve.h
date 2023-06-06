@@ -76,7 +76,7 @@ public:
 
     Matrix *getB() override;
 
-    static Matrix mat_b;
+    static Matrix basis_b;
 
     void generateSections() override;
 

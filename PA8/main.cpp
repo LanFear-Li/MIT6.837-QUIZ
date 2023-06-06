@@ -22,7 +22,8 @@ int main(int argc, char *argv[]) {
     splines->SaveTriangles(args);
 
     // cleanup
-    delete args;
-    delete splines;
+    // TODO: Solve memory problem
+    // delete args;
+    // delete splines;
     return 0;
 }
