@@ -20,15 +20,9 @@ public:
 
     void output(FILE *file);
 
-    int getNumVertices() override { return 0; }
+    int getNumVertices() override { return this->point_num; }
 
-    Vec3f getVertex(int i) override { return {}; }
-
-    void moveControlPoint(int selectedPoint, float x, float y) override {}
-
-    void addControlPoint(int selectedPoint, float x, float y) override {}
-
-    void deleteControlPoint(int selectedPoint) override {}
+    Vec3f getVertex(int i) override { return this->ctrl_point[i]; }
 
     TriangleMesh *OutputTriangles(ArgParser *args) override { return {}; }
 
@@ -57,7 +51,7 @@ public:
 
     Matrix *getB() override;
 
-    static Matrix _B;
+    static Matrix basis_bezier;
 
     void generateSections() override;
 
@@ -76,7 +70,7 @@ public:
 
     Matrix *getB() override;
 
-    static Matrix basis_b;
+    static Matrix basis_bspline;
 
     void generateSections() override;
 

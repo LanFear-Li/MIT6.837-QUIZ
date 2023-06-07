@@ -20,11 +20,11 @@ public:
 
     virtual Vec3f getVertex(int i) = 0;
 
-    virtual void moveControlPoint(int selectedPoint, float x, float y) = 0;
+    virtual void moveControlPoint(int selectedPoint, float x, float y);
 
-    virtual void addControlPoint(int selectedPoint, float x, float y) = 0;
+    virtual void addControlPoint(int selectedPoint, float x, float y);
 
-    virtual void deleteControlPoint(int selectedPoint) = 0;
+    virtual void deleteControlPoint(int selectedPoint);
 
     virtual TriangleMesh* OutputTriangles(ArgParser *args) = 0;
 

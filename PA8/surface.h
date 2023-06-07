@@ -4,39 +4,32 @@
 #include "spline.h"
 #include "curve.h"
 
-class Surface : public virtual Spline {
-public:
-    void Paint(ArgParser *arg_parser) override {}
-
-    void OutputBezier(FILE *file) override {}
-
-    void OutputBSpline(FILE *file) override {}
-
-    int getNumVertices() override { return 0; }
-
-    Vec3f getVertex(int i) override {return {}; }
-
-    void moveControlPoint(int selectedPoint, float x, float y) override {}
-
-    void addControlPoint(int selectedPoint, float x, float y) override {}
-
-    void deleteControlPoint(int selectedPoint) override {}
-
-    TriangleMesh* OutputTriangles(ArgParser *args) override { return {}; }
-};
+class Surface : public virtual Spline {};
 
 class SurfaceOfRevolution : public virtual Surface {
 public:
-    explicit SurfaceOfRevolution(Curve *c) {}
+    explicit SurfaceOfRevolution(Curve *c);
 
-    void set(int i, Vec3f vec) {}
+    void Paint(ArgParser *arg_parser) override;
+
+    void output(FILE *file);
+
+    int getNumVertices() override { return this->point_num; }
+
+    Vec3f getVertex(int i) override { return this->ctrl_point[i]; }
+
+    void moveControlPoint(int selectedPoint, float x, float y) override;
+
+    void addControlPoint(int selectedPoint, float x, float y) override;
+
+    void deleteControlPoint(int selectedPoint) override;
 };
 
 class BezierPatch : public virtual Surface {
 public:
     explicit BezierPatch() = default;
 
-    void set(int i, Vec3f vec) {}
+    void set(int i, const Vec3f& vec) {}
 };
 
 #endif
