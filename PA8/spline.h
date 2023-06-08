@@ -12,6 +12,8 @@ class Spline {
 public:
     explicit Spline(int point_num);
 
+    explicit Spline(const vector<Vec3f>& points);
+
     virtual void Paint(ArgParser *arg_parser) = 0;
 
     virtual void OutputBezier(FILE *file) {}

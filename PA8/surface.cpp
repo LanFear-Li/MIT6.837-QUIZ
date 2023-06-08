@@ -56,9 +56,63 @@ TriangleMesh *SurfaceOfRevolution::OutputTriangles(ArgParser *args) {
 
 
 void BezierPatch::Paint(ArgParser *arg_parser) {
+    // control points
+    glColor3f(1.f, 0.f, 0.f);
+    glPointSize(4.0f);
+    glBegin(GL_POINTS);
+    for (int i = 0; i < this->point_num; i++) {
+        glVertex3fv(this->ctrl_point[i].GetAll());
+    }
+    glEnd();
 
+    // control lines
+    glColor3f(0.f, 0.f, 1.f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_STRIP);
+    for (int i = 0; i < this->point_num; i++) {
+        glVertex3fv(this->ctrl_point[i].GetAll());
+    }
+    glEnd();
 }
 
 TriangleMesh *BezierPatch::OutputTriangles(ArgParser *args) {
-    return nullptr;
+    vector<Vec3f> curve_points[4];
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            curve_points[i].push_back(this->ctrl_point[i * 4 + j]);
+        }
+    }
+
+    BezierCurve curve[4] = {
+            BezierCurve(curve_points[0]),
+            BezierCurve(curve_points[1]),
+            BezierCurve(curve_points[2]),
+            BezierCurve(curve_points[3])
+    };
+
+    float t = 0, step_t = 1.0f / args->curve_tessellation;
+    float s = 0, step_s = 1.0f / args->patch_tessellation;
+    auto *mesh = new TriangleNet(args->patch_tessellation, args->curve_tessellation);
+
+    vector<Vec3f> points;
+    for (int i = 0; i <= args->curve_tessellation; i++) {
+        points.clear();
+
+        for (auto &c : curve) {
+            c.generateSections();
+            points.push_back((c.sections[0].calculatePoint(t)));
+        }
+
+        BezierCurve tempCurve(points);
+        tempCurve.generateSections();
+        s = 0;
+        for (int j = 0; j <= args->patch_tessellation; j++) {
+            mesh->SetVertex(j, i, tempCurve.sections[0].calculatePoint(s));
+            s += step_s;
+        }
+
+        t += step_t;
+    }
+
+    return mesh;
 }

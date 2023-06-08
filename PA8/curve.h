@@ -18,6 +18,8 @@ class Curve : public Spline {
 public:
     explicit Curve(int point_num) : Spline(point_num) {}
 
+    explicit Curve(const vector<Vec3f>& points) : Spline(points) {}
+
     void Paint(ArgParser *arg_parser) override;
 
     virtual vector<Vec3f> tessellatePoint(ArgParser *arg_parser) = 0;
@@ -41,6 +43,8 @@ class BezierCurve : public Curve {
 public:
     explicit BezierCurve(int point_num) : Curve(point_num) {}
 
+    explicit BezierCurve(const vector<Vec3f>& points) : Curve(points) {}
+
     Matrix *getB() override;
 
     static Matrix basis_bezier;
@@ -59,6 +63,8 @@ public:
 class BSplineCurve : public Curve {
 public:
     explicit BSplineCurve(int point_num) : Curve(point_num) {}
+
+    explicit BSplineCurve(const vector<Vec3f>& points) : Curve(points) {}
 
     Matrix *getB() override;
 

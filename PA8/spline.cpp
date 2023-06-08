@@ -7,6 +7,17 @@ Spline::Spline(int point_num) {
     this->ctrl_point.resize(point_num);
 }
 
+Spline::Spline(const vector<Vec3f>& points) {
+    this->point_num = points.size();
+
+    this->ctrl_point.clear();
+    this->ctrl_point.resize(point_num);
+
+    for (int i = 0; i < point_num; i++) {
+        this->ctrl_point[i] = points[i];
+    }
+}
+
 void Spline::set(int i, const Vec3f &p) {
     this->ctrl_point[i] = p;
 }
