@@ -8,6 +8,11 @@ public:
     ForceField();
 
     virtual Vec3f getAcceleration(const Vec3f &position, float mass, float t) const = 0;
+
+protected:
+    Vec3f gravity;
+    Vec3f force;
+    float magnitude{};
 };
 
 class GravityForceField : public ForceField {

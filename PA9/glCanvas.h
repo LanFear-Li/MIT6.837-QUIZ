@@ -2,6 +2,10 @@
 #define _PA_GL_CANVAS_H_
 
 #include <cstdlib>
+
+#include <GL/gl.h>
+#include <GL/glut.h>
+
 #include "vectors.h"
 
 class Parser;

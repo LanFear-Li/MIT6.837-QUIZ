@@ -55,6 +55,7 @@ int main(int argc, char *argv[]) {
     auto *parser = new Parser(argv[2]);
 
     // launch viewer!   and it never returns...
+    glutInit(&argc, argv);
     GLCanvas glcanvas;
     GLCanvas::initialize(parser, refresh, dt, integrator_color,
                         draw_vectors, acceleration_scale, motion_blur);
