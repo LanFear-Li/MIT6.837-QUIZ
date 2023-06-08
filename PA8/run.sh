@@ -47,9 +47,21 @@ case "$idx" in
   ;;
 
 '06')
-  ./curve_editor -input ../SCENE/"${spline_name["10#$idx"]}" -curve_tessellation 4 -gui
-  # ./curve_editor -input ../SCENE/"${spline_name["10#$idx"]}" -curve_tessellation 4 -revolution_tessellation 10 -output ../SCENE/torus_low.obj
-  # ./curve_editor -input ../SCENE/"${spline_name["10#$idx"]}" -curve_tessellation 30 -revolution_tessellation 60 -output ../SCENE/torus_high.obj
+  # ./curve_editor -input ../SCENE/"${spline_name["10#$idx"]}" -curve_tessellation 4 -gui
+  # ./curve_editor -input ../SCENE/"${spline_name["10#$idx"]}" -curve_tessellation 4 -revolution_tessellation 10 -output ../MODEL/torus_low.obj
+  ./curve_editor -input ../SCENE/"${spline_name["10#$idx"]}" -curve_tessellation 30 -revolution_tessellation 60 -output ../MODEL/torus_high.obj
+
+  # ./raytracer -input ../SCENE/scene8_06_torus_low.txt -gui -size 300 300
+  ./raytracer -input ../SCENE/scene8_06_torus_high.txt -gui -size 300 300
+  ;;
+
+'07')
+  # ./curve_editor -input ../SCENE/"${spline_name["10#$idx"]}" -curve_tessellation 4 -output_bspline ../SCENE/output8_07_edit.txt -gui
+  # ./curve_editor -input ../SCENE/output8_07_edit.txt -curve_tessellation 4 -revolution_tessellation 10 -output ../MODEL/vase_low.obj
+  ./curve_editor -input ../SCENE/output8_07_edit.txt -curve_tessellation 10 -revolution_tessellation 60 -output ../MODEL/vase_high.obj
+
+  # ./raytracer -input ../SCENE/scene8_07_vase_low.txt -gui -size 300 300
+  ./raytracer -input ../SCENE/scene8_07_vase_high.txt -gui -size 300 300
   ;;
 esac
 

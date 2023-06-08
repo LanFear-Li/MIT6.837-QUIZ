@@ -8,8 +8,8 @@
 // ========================================================
 
 // STATIC VARIABLES
-ArgParser* GLCanvas::args = NULL;
-SplineParser* GLCanvas::splines = NULL;
+ArgParser* GLCanvas::args = nullptr;
+SplineParser* GLCanvas::splines = nullptr;
 int GLCanvas::width = 300;
 int GLCanvas::height = 300;
 float GLCanvas::size = 10;
@@ -107,7 +107,7 @@ void GLCanvas::mouseToScreen(int i, int j, float &x, float &y, float &epsilon) {
 
 void GLCanvas::mouse(int button, int state, int i, int j) {
     // mouse release
-    if (state == 1) { selected_spline = NULL; return; }
+    if (state == 1) { selected_spline = nullptr; return; }
 
     float x,y,epsilon;
     mouseToScreen(i,j,x,y,epsilon);
@@ -118,7 +118,7 @@ void GLCanvas::mouse(int button, int state, int i, int j) {
         int pt;
         // find the closest control point
         splines->Pick(x,y,epsilon,s,pt);
-        if (s == NULL) return;
+        if (s == nullptr) return;
         s->moveControlPoint(pt,x,y);
         selected_spline = s;
         selected_control_point = pt; }
@@ -129,7 +129,7 @@ void GLCanvas::mouse(int button, int state, int i, int j) {
         int pt;
         // find the closest edge (& control point)
         splines->PickEdge(x,y,epsilon,s,pt);
-        if (s == NULL) return;
+        if (s == nullptr) return;
         s->addControlPoint(pt,x,y);
         selected_spline = s;
         selected_control_point = pt; }
@@ -140,7 +140,7 @@ void GLCanvas::mouse(int button, int state, int i, int j) {
         int pt;
         // find the closest control point
         splines->Pick(x,y,epsilon,s,pt);
-        if (s == NULL) return;
+        if (s == nullptr) return;
         s->deleteControlPoint(pt); }
 
     // Redraw the scene
@@ -153,7 +153,7 @@ void GLCanvas::mouse(int button, int state, int i, int j) {
 
 void GLCanvas::motion(int i, int j) {
     // move control point
-    if (selected_spline == NULL) return;
+    if (selected_spline == nullptr) return;
     float x,y,epsilon;
     mouseToScreen(i,j,x,y,epsilon);
     selected_spline->moveControlPoint(selected_control_point,x,y);

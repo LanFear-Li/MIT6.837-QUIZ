@@ -10,15 +10,19 @@
 
 class Spline {
 public:
+    explicit Spline(int point_num);
+
     virtual void Paint(ArgParser *arg_parser) = 0;
 
-    virtual void OutputBezier(FILE *file) = 0;
+    virtual void OutputBezier(FILE *file) {}
 
-    virtual void OutputBSpline(FILE *file) = 0;
+    virtual void OutputBSpline(FILE *file) {}
 
-    virtual int getNumVertices() = 0;
+    virtual void set(int i, const Vec3f &p);
 
-    virtual Vec3f getVertex(int i) = 0;
+    virtual int getNumVertices();
+
+    virtual Vec3f getVertex(int i);
 
     virtual void moveControlPoint(int selectedPoint, float x, float y);
 
@@ -26,7 +30,7 @@ public:
 
     virtual void deleteControlPoint(int selectedPoint);
 
-    virtual TriangleMesh* OutputTriangles(ArgParser *args) = 0;
+    virtual TriangleMesh* OutputTriangles(ArgParser *args) {};
 
     int point_num;
 

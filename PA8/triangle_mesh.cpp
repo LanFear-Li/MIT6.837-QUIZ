@@ -7,9 +7,9 @@ TriangleMesh::TriangleMesh(int num_verts, int num_tris) {
     num_vertices = num_verts;
     num_triangles = num_tris;
     // create the storage space
-    if (num_vertices == 0) vertices = NULL;
+    if (num_vertices == 0) vertices = nullptr;
     else vertices = new Vec3f[num_vertices];
-    if (num_triangles == 0) triangles = NULL;
+    if (num_triangles == 0) triangles = nullptr;
     else triangles = new int[num_triangles*3];
     // NOTE: the data structures are not zero-ed out
 }

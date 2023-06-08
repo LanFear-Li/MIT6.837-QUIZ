@@ -14,17 +14,13 @@ public:
     Vec3f calculatePoint(float t) const;
 };
 
-class Curve : public virtual Spline {
+class Curve : public Spline {
 public:
+    explicit Curve(int point_num) : Spline(point_num) {}
+
     void Paint(ArgParser *arg_parser) override;
 
-    void output(FILE *file);
-
-    int getNumVertices() override { return this->point_num; }
-
-    Vec3f getVertex(int i) override { return this->ctrl_point[i]; }
-
-    TriangleMesh *OutputTriangles(ArgParser *args) override { return {}; }
+    virtual vector<Vec3f> tessellatePoint(ArgParser *arg_parser) = 0;
 
     virtual Matrix *getB() = 0;
 
@@ -35,19 +31,15 @@ public:
     std::vector<CurveSection> getSections();
 
     std::vector<CurveSection> sections;
-
-    string curve_type;
 };
 
 class BezierCurve;
 
 class BSplineCurve;
 
-class BezierCurve : public virtual Curve {
+class BezierCurve : public Curve {
 public:
-    explicit BezierCurve(int num_vertices);
-
-    void set(int i, const Vec3f &vec);
+    explicit BezierCurve(int point_num) : Curve(point_num) {}
 
     Matrix *getB() override;
 
@@ -60,13 +52,13 @@ public:
     void OutputBezier(FILE *file) override;
 
     void OutputBSpline(FILE *file) override;
+
+    vector<Vec3f> tessellatePoint(ArgParser *arg_parser) override;
 };
 
-class BSplineCurve : public virtual Curve {
+class BSplineCurve : public Curve {
 public:
-    explicit BSplineCurve(int num_vertices);
-
-    void set(int i, const Vec3f &vec);
+    explicit BSplineCurve(int point_num) : Curve(point_num) {}
 
     Matrix *getB() override;
 
@@ -79,6 +71,8 @@ public:
     void OutputBezier(FILE *file) override;
 
     void OutputBSpline(FILE *file) override;
+
+    vector<Vec3f> tessellatePoint(ArgParser *arg_parser) override;
 };
 
 #endif

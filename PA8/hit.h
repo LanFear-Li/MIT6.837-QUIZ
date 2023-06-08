@@ -16,7 +16,7 @@ class Hit {
 public:
 
     // CONSTRUCTOR & DESTRUCTOR
-    Hit() { material = NULL; t = numeric_limits<float>::max(); }
+    Hit() { material = nullptr; t = numeric_limits<float>::max(); }
     Hit(float _t, Material *m, Vec3f n) {
         t = _t; material = m; normal = n; }
     Hit(const Hit &h) {

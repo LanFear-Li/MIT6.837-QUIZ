@@ -25,10 +25,10 @@ private:
 
     // HELPER FUNCTIONS
     void DefaultValues() {
-        input_file = NULL;
-        output_file = NULL;
-        output_bezier_file = NULL;
-        output_bspline_file = NULL;
+        input_file = nullptr;
+        output_file = nullptr;
+        output_bezier_file = nullptr;
+        output_bspline_file = nullptr;
         gui = 0;
         revolution_tessellation = 10;
         curve_tessellation = 10;

@@ -314,7 +314,7 @@ void Matrix::Transform(Vec4f &v) const {
 // ====================================================================
 
 void Matrix::Write(FILE *F) const {
-    assert (F != NULL);
+    assert (F != nullptr);
     for (int y = 0; y < 4; y++) {
         for (int x = 0; x < 4; x++) {
             float tmp = data[y][x];
@@ -326,7 +326,7 @@ void Matrix::Write(FILE *F) const {
 }
 
 void Matrix::Write3x3(FILE *F) const {
-    assert (F != NULL);
+    assert (F != nullptr);
     for (int y = 0; y < 4; y++) {
         if (y == 2) continue;
         for (int x = 0; x < 4; x++) {
@@ -340,7 +340,7 @@ void Matrix::Write3x3(FILE *F) const {
 }
 
 void Matrix::Read(FILE *F) {
-    assert (F != NULL);
+    assert (F != nullptr);
     for (int y = 0; y < 4; y++) {
         for (int x = 0; x < 4; x++) {
             int scanned = fscanf (F,"%f",&data[y][x]);
@@ -350,7 +350,7 @@ void Matrix::Read(FILE *F) {
 }
 
 void Matrix::Read3x3(FILE *F) {
-    assert (F != NULL);
+    assert (F != nullptr);
     Clear();
     for (int y = 0; y < 4; y++) {
         if (y == 2) continue;

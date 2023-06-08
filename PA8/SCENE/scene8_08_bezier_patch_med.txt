@@ -32,6 +32,6 @@ Group {
 
     MaterialIndex 0
     TriangleMesh {
-        obj_file patch_med.obj
+        obj_file ../MODEL/patch_med.obj
     }
 }

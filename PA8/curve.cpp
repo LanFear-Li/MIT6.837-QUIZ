@@ -32,19 +32,12 @@ void Curve::Paint(ArgParser *arg_parser) {
     glColor3f(0.f, 1.f, 0.f);
     glLineWidth(2.0f);
     glBegin(GL_LINE_STRIP);
-    for (const auto& section : this->sections) {
+    for (const auto &section: this->sections) {
         for (int i = 0; i <= tessellation; i++) {
-            glVertex3fv(section.calculatePoint(1.f / tessellation * i).GetAll());
+            glVertex3fv(section.calculatePoint(1.0f / tessellation * i).GetAll());
         }
     }
     glEnd();
-}
-
-void Curve::output(FILE *file) {
-    fprintf(file, "%s\nnum_vertices %d\n", this->curve_type.c_str(), this->point_num);
-    for (const auto &p: this->ctrl_point) {
-        fprintf(file, "%.2f %.2f %.2f\n", p.x(), p.y(), p.z());
-    }
 }
 
 void Curve::generateSection(int section_idx, int begin_idx) {
@@ -52,7 +45,7 @@ void Curve::generateSection(int section_idx, int begin_idx) {
     sec.B = getB();
     Vec4f v[4];
     for (int j = 0; j < 4; ++j) {
-        v[j] = Vec4f(this->ctrl_point[begin_idx + j], 1.f);
+        v[j] = Vec4f(this->ctrl_point[begin_idx + j], 1.0f);
     }
     sec.G = Matrix(v);
 }
@@ -70,19 +63,6 @@ static float Bernstein_Bezier[16] = {
         1.f, 0.f, 0.f, 0.f
 };
 Matrix BezierCurve::basis_bezier = Matrix(Bernstein_Bezier);
-
-BezierCurve::BezierCurve(int num_vertices) {
-    this->curve_type = "bezier";
-    this->point_num = num_vertices;
-
-    this->ctrl_point.clear();
-    this->ctrl_point.resize(num_vertices);
-}
-
-void BezierCurve::set(int i, const Vec3f& vec) {
-    assert(i >= 0 && i < this->point_num);
-    this->ctrl_point[i] = vec;
-}
 
 Matrix *BezierCurve::getB() {
     return &BezierCurve::basis_bezier;
@@ -116,11 +96,36 @@ BSplineCurve *BezierCurve::bezierToBSpline() {
 }
 
 void BezierCurve::OutputBezier(FILE *file) {
-    output(file);
+    fprintf(file, "%s\nnum_vertices %d\n", "bezier", this->point_num);
+    for (const auto &p: this->ctrl_point) {
+        fprintf(file, "%.2f %.2f %.2f\n", p.x(), p.y(), p.z());
+    }
 }
 
 void BezierCurve::OutputBSpline(FILE *file) {
-    bezierToBSpline()->output(file);
+    auto *bspline = this->bezierToBSpline();
+
+    fprintf(file, "%s\nnum_vertices %d\n", "bspline", bspline->point_num);
+    for (const auto &p: bspline->ctrl_point) {
+        fprintf(file, "%.2f %.2f %.2f\n", p.x(), p.y(), p.z());
+    }
+}
+
+vector<Vec3f> BezierCurve::tessellatePoint(ArgParser *arg_parser) {
+    int tessellate_num = arg_parser->curve_tessellation;
+    generateSections();
+    vector<Vec3f> points;
+
+    float step = 1.0f / tessellate_num;
+    for (const auto &section: this->sections) {
+        float cur = 0;
+        for (int i = 0; i <= tessellate_num; i++) {
+            points.push_back(section.calculatePoint(cur));
+            cur += step;
+        }
+    }
+
+    return points;
 }
 
 
@@ -132,19 +137,6 @@ static float Bernstein_BSpline[16] = {
 };
 
 Matrix BSplineCurve::basis_bspline = Matrix(Bernstein_BSpline) * (1.f / 6.f);
-
-BSplineCurve::BSplineCurve(int num_vertices) {
-    this->curve_type = "bspline";
-    this->point_num = num_vertices;
-
-    this->ctrl_point.clear();
-    this->ctrl_point.resize(num_vertices);
-}
-
-void BSplineCurve::set(int i, const Vec3f& vec) {
-    assert(i >= 0 && i < this->point_num);
-    this->ctrl_point[i] = vec;
-}
 
 Matrix *BSplineCurve::getB() {
     return &BSplineCurve::basis_bspline;
@@ -178,9 +170,34 @@ BezierCurve *BSplineCurve::bSplineToBezier() {
 }
 
 void BSplineCurve::OutputBSpline(FILE *file) {
-    output(file);
+    fprintf(file, "%s\nnum_vertices %d\n", "bspline", this->point_num);
+    for (const auto &p: this->ctrl_point) {
+        fprintf(file, "%.2f %.2f %.2f\n", p.x(), p.y(), p.z());
+    }
 }
 
 void BSplineCurve::OutputBezier(FILE *file) {
-    bSplineToBezier()->output(file);
+    auto *bezier = this->bSplineToBezier();
+    fprintf(file, "%s\nnum_vertices %d\n", "bezier", bezier->point_num);
+    for (const auto &p: bezier->ctrl_point) {
+        fprintf(file, "%.2f %.2f %.2f\n", p.x(), p.y(), p.z());
+    }
+}
+
+vector<Vec3f> BSplineCurve::tessellatePoint(ArgParser *arg_parser) {
+    int tessellate_num = arg_parser->curve_tessellation;
+    generateSections();
+    vector<Vec3f> points;
+
+    // for bspline: the first three points are the same
+    float step = 1.0f / tessellate_num, cur = 0;
+    for (const auto &section: this->sections) {
+        cur = 0;
+        for (int i = 0; i <= tessellate_num; i++) {
+            points.push_back(section.calculatePoint(1.0f - cur));
+            cur += step;
+        }
+    }
+
+    return points;
 }

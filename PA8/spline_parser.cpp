@@ -11,9 +11,9 @@
 SplineParser::SplineParser(const char *spline_file) {
 
     // open the file for reading
-    assert (spline_file != NULL);
+    assert (spline_file != nullptr);
     file = fopen(spline_file,"r");
-    assert (file != NULL);
+    assert (file != nullptr);
     char token[MAX_PARSER_TOKEN_LENGTH];
 
     // read in the number of splines in this file
@@ -25,7 +25,7 @@ SplineParser::SplineParser(const char *spline_file) {
     // read the splines
     for (int i = 0; i < num_splines; i++) {
         Spline *s = ParseSpline();
-        assert (s != NULL);
+        assert (s != nullptr);
         splines[i] = s;
     }
 
@@ -45,7 +45,7 @@ SplineParser::~SplineParser() {
 Spline* SplineParser::ParseSpline() {
     char token[MAX_PARSER_TOKEN_LENGTH];
     getToken(token);
-    Spline *answer = NULL;
+    Spline *answer = nullptr;
     if (!strcmp(token,"bezier")) {
         answer = ParseBezierCurve();
     } else if (!strcmp(token,"bspline")) {
@@ -96,7 +96,7 @@ Surface* SplineParser::ParseSurfaceOfRevolution() {
     // the y axis (x = 0, z = 0)
     char token[MAX_PARSER_TOKEN_LENGTH];
     getToken(token);
-    Curve *c = NULL;
+    Curve *c = nullptr;
     if (!strcmp(token,"bezier")) {
         c = ParseBezierCurve();
     } else if (!strcmp(token,"bspline")) {
@@ -104,7 +104,7 @@ Surface* SplineParser::ParseSurfaceOfRevolution() {
     } else {
         printf ("ERROR unknown curve type %s\n", token);
     }
-    assert (c != NULL);
+    assert (c != nullptr);
     Surface *answer = new SurfaceOfRevolution(c);
     return answer;
 }
@@ -123,7 +123,7 @@ Surface* SplineParser::ParseBezierPatch() {
 
 void SplineParser::Pick(float x, float y, float epsilon,
                         Spline*& selected_curve, int &selected_control_point) {
-    selected_curve = NULL;
+    selected_curve = nullptr;
     float distance = epsilon;
     // iterate through all the splines
     for (int i = 0; i < num_splines; i++) {
@@ -166,7 +166,7 @@ float DistanceToLineSegment(Vec2f a, Vec2f b, Vec2f pt) {
 
 void SplineParser::PickEdge(float x, float y, float epsilon,
                             Spline*& selected_curve, int &selected_control_point) {
-    selected_curve = NULL;
+    selected_curve = nullptr;
     float distance = epsilon;
     for (int i = 0; i < num_splines; i++) {
         Spline *s = getSpline(i);
@@ -193,9 +193,9 @@ void SplineParser::PickEdge(float x, float y, float epsilon,
 
 void SplineParser::SaveBezier(ArgParser *args) {
     // save the current set of splines, force them to be bezier when possible
-    if (args->output_bezier_file == NULL) return;
+    if (args->output_bezier_file == nullptr) return;
     FILE *file = fopen(args->output_bezier_file,"w");
-    assert (file != NULL);
+    assert (file != nullptr);
     fprintf (file, "num_splines %d\n", getNumSplines());
     for (int i = 0; i < getNumSplines(); i++) {
         getSpline(i)->OutputBezier(file);
@@ -205,9 +205,9 @@ void SplineParser::SaveBezier(ArgParser *args) {
 
 void SplineParser::SaveBSpline(ArgParser *args) {
     // save the current set of splines, force them to be bspline when possible
-    if (args->output_bspline_file == NULL) return;
+    if (args->output_bspline_file == nullptr) return;
     FILE *file = fopen(args->output_bspline_file,"w");
-    assert (file != NULL);
+    assert (file != nullptr);
     fprintf (file, "num_splines %d\n", getNumSplines());
     for (int i = 0; i < getNumSplines(); i++) {
         getSpline(i)->OutputBSpline(file);
@@ -217,7 +217,7 @@ void SplineParser::SaveBSpline(ArgParser *args) {
 
 void SplineParser::SaveTriangles(ArgParser *args) {
     // save a triangle representation of the current set of splines, as an .obj file
-    if (args->output_file == NULL) return;
+    if (args->output_file == nullptr) return;
     TriangleMesh mesh = TriangleMesh(0,0);
     for (int i = 0; i < getNumSplines(); i++) {
         TriangleMesh *m2 = getSpline(i)->OutputTriangles(args);
@@ -225,7 +225,7 @@ void SplineParser::SaveTriangles(ArgParser *args) {
         delete m2;
     }
     FILE *file = fopen(args->output_file,"w");
-    assert (file != NULL);
+    assert (file != nullptr);
     mesh.Output(file);
     fclose(file);
 }
@@ -235,7 +235,7 @@ void SplineParser::SaveTriangles(ArgParser *args) {
 
 int SplineParser::getToken(char token[MAX_PARSER_TOKEN_LENGTH]) {
     // for simplicity, tokens must be separated by whitespace
-    assert (file != NULL);
+    assert (file != nullptr);
     int success = fscanf(file,"%s ",token);
     if (success == EOF) {
         token[0] = '\0';
