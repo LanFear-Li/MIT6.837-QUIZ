@@ -3,55 +3,61 @@
 
 #include "vectors.h"
 #include "particle.h"
+#include "random.h"
+#include "glCanvas.h"
 
 class Generator {
 public:
     // initialization
-    virtual void SetColors(Vec3f color, Vec3f dead_color, float color_randomness) = 0;
+    void SetColors(const Vec3f &c, const Vec3f &dead_c, float c_randomness);
 
-    virtual void SetLifespan(float lifespan, float lifespan_randomness, int desired_num_particles) = 0;
+    void SetLifespan(float ls, float ls_randomness, int desired_num);
 
-    virtual void SetMass(float mass, float mass_randomness) = 0;
+    void SetMass(float m, float m_randomness);
 
     // on each time step, create some particles
-    virtual int numNewParticles(float current_time, float dt) const = 0;
+    virtual int numNewParticles(float current_time, float dt) const;
 
     virtual Particle *Generate(float current_time, int i) = 0;
 
     // for the gui
     virtual void Paint() const = 0;
 
-    virtual void Restart() = 0;
+    void Restart();
+
+protected:
+    Vec3f color{};
+    Vec3f dead_color{};
+    float color_randomness{};
+
+    float lifespan{};
+    float lifespan_randomness{};
+    int desired_num_particles{};
+
+    float mass{};
+    float mass_randomness{};
+
+    Random random_generator{};
 };
 
 class HoseGenerator : public Generator {
 public:
-    HoseGenerator(Vec3f position, float position_randomness, Vec3f velocity, float velocity_randomness);
-
-    void SetColors(Vec3f color, Vec3f dead_color, float color_randomness) override;
-
-    void SetLifespan(float lifespan, float lifespan_randomness, int desired_num_particles) override;
-
-    void SetMass(float mass, float mass_randomness) override;
-
-    int numNewParticles(float current_time, float dt) const override;
+    HoseGenerator(const Vec3f& position, float position_randomness, const Vec3f& velocity, float velocity_randomness);
 
     Particle *Generate(float current_time, int i) override;
 
     void Paint() const override;
 
-    void Restart() override;
+protected:
+    Vec3f position{};
+    float position_randomness{};
+    Vec3f velocity{};
+    float velocity_randomness{};
 };
 
 class RingGenerator : public Generator {
 public:
-    RingGenerator(float position_randomness, Vec3f velocity, float velocity_randomness);
-
-    void SetColors(Vec3f color, Vec3f dead_color, float color_randomness) override;
-
-    void SetLifespan(float lifespan, float lifespan_randomness, int desired_num_particles) override;
-
-    void SetMass(float mass, float mass_randomness) override;
+    RingGenerator(float position_randomness, const Vec3f& velocity, float velocity_randomness);
 
     int numNewParticles(float current_time, float dt) const override;
 
@@ -59,7 +65,13 @@ public:
 
     void Paint() const override;
 
-    void Restart() override;
+protected:
+    float position_randomness{};
+    Vec3f velocity{};
+    float velocity_randomness{};
+
+    float expand_velocity = 0.1f;
+    float radius_randomness = 0.2f;
 };
 
 #endif

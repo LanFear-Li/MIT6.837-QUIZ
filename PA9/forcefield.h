@@ -43,11 +43,4 @@ public:
     Vec3f getAcceleration(const Vec3f &position, float mass, float t) const override;
 };
 
-class WindForceField : public ForceField {
-public:
-    explicit WindForceField(const float &magnitude);
-
-    Vec3f getAcceleration(const Vec3f &position, float mass, float t) const override;
-};
-
 #endif

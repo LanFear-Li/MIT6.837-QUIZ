@@ -8,9 +8,7 @@ GravityForceField::GravityForceField(const Vec3f &gravity) {
 }
 
 Vec3f GravityForceField::getAcceleration(const Vec3f &position, float mass, float t) const {
-    Vec3f result = this->gravity;
-    result /= mass;
-    return result;
+    return this->gravity;
 }
 
 
@@ -30,12 +28,9 @@ RadialForceField::RadialForceField(const float &magnitude) {
 }
 
 Vec3f RadialForceField::getAcceleration(const Vec3f &position, float mass, float t) const {
-    float distance = position.Length();
-    Vec3f f(-position.x(), -position.y(), -position.z());
-    f.Normalize();
-
-    f *= (distance / mass);
-    return f;
+    Vec3f f = position * this->magnitude;
+    f.Negate();
+    return f * (1.0f / mass);
 }
 
 
@@ -44,21 +39,9 @@ VerticalForceField::VerticalForceField(const float &magnitude) {
 }
 
 Vec3f VerticalForceField::getAcceleration(const Vec3f &position, float mass, float t) const {
-    float distance = abs(position.y());
-    Vec3f f(0, -position.y(), 0);
-    f.Normalize();
+    Vec3f f = Vec3f(0, -position.y(), 0) * this->magnitude;
 
-    f *= (distance / mass);
-    return f;
-}
-
-
-WindForceField::WindForceField(const float &magnitude) {
-    this->magnitude = magnitude;
-}
-
-Vec3f WindForceField::getAcceleration(const Vec3f &position, float mass, float t) const {
-    return Vec3f();
+    return f * (1.0f / mass);
 }
 
 
