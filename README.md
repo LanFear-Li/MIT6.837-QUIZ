@@ -34,11 +34,11 @@ for (int p = 0; p < point_nums; p++) {
 
 sierpinski triangle
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa0-1.png" style="zoom: 30%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa0-1.png" style="zoom:50%;" />
 
 barnsley fern
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa0-2.png" style="zoom: 100%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa0-2.png" style="zoom:150%;" />
 
 ## PA1 - Ray Casting
 
@@ -104,11 +104,11 @@ return Ray(origin, this->direction);
 
 frame buffer
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa1-1.png" style="zoom: 100%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa1-1.png" style="zoom:150%;" />
 
 depth buffer
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa1-2.png" style="zoom: 100%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa1-2.png" style="zoom:150%;" />
 
 ## PA2 - Transformations & Additional Primitives
 
@@ -195,11 +195,11 @@ return Ray(origin, ray_dir);
 
 bunny
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa2-1.png" style="zoom: 100%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa2-1.png" style="zoom:150%;" />
 
 frame buffer
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa2-2.png" style="zoom: 100%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa2-2.png" style="zoom:150%;" />
 
 ## PA3 - OpenGL & Phong Shading
 
@@ -228,7 +228,7 @@ return (diffuse_color + specular_color) * lightColor;
 
 specular lighting
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa3-1.png" style="zoom: 100%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa3-1.png" style="zoom:150%;" />
 
 ## PA4 - Shadows, Reflection & Refraction
 
@@ -290,7 +290,7 @@ for (int k = 0; k < light_num; k++) {
     if (input_parser->shadows) {
         Ray ray_shadow(intersect, dir_to_light);
         Hit hit_shadow;
-        if (group->intersect(ray_shadow, hit_shadow, epsilon) && dis_to_light > hit_shadow.getT()) {
+        if (group->i<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa3-1.png" style="zoom:150%;" />ntersect(ray_shadow, hit_shadow, epsilon) && dis_to_light > hit_shadow.getT()) {
             RayTree::AddShadowSegment(ray_shadow, 0, hit_shadow.getT());
             continue;
         } else {
@@ -306,7 +306,7 @@ for (int k = 0; k < light_num; k++) {
 
 point light circle
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa4-1.png" style="zoom: 100%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa4-1.png" style="zoom:150%;" />
 
 ## PA5 - Voxel Rendering
 
@@ -390,7 +390,7 @@ for (int i = 0; i < 3; i++) {
 
 bunny
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa5-1.png" style="zoom: 100%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa5-1.png" style="zoom:150%;" />
 
 ## PA6 - Grid Acceleration & Solid Textures
 
@@ -438,14 +438,14 @@ if (info.hit_cell) {
 }
 
 // intersect with infinite objects and find the nearest
-bool infinite_intersected = false;
+bool infinite_intersected = false;<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa5-1.png" style="zoom: 100%;text-align: left"/></p>
 Hit hit_infinite_closest;
 for (auto object : infinite_objects) {
     Hit hit_infinite;
     if (object->intersect(r, hit_infinite, t_min)) {
         if (h.getMaterial() && hit_infinite.getT() >= h.getT()) {
             continue;
-        }
+        }<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa5-1.png" style="zoom: 100%;text-align: left"/></p>
 
         if (hit_infinite_closest.getMaterial() == nullptr || hit_infinite.getT() < 				                     hit_infinite_closest.getT()) {
             hit_infinite_closest = hit_infinite;
@@ -465,15 +465,15 @@ return info.hit_cell || infinite_intersected;
 
 grid accelerated bunny
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa6-1.png" style="zoom: 100%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa6-1.png" style="zoom:150%;" />
 
 grid accelerated marble vase
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa6-2.png" style="zoom: 30%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa6-2.png" style="zoom: 33%;" />
 
 grid accelerated MIT6.837 logo
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa6-3.png" style="zoom: 30%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa6-3.png" style="zoom: 50%;" />
 
 ## PA7 - Supersampling and Antialiasing
 
@@ -543,15 +543,15 @@ return color * (1.0f / weight_sum);
 
 anti-aliased marble vase
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa7-1.png" style="zoom: 50%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa7-1.png" style="zoom: 50%;" />
 
 anti-aliased MIT6.837 logo
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa7-2.png" style="zoom: 30%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa7-2.png" style="zoom: 50%;" />
 
 anti-aliased sphere
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa7-3.png" style="zoom: 30%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa7-3.png" style="zoom: 50%;" />
 
 ## PA8 - Curves & Surfaces
 
@@ -606,11 +606,11 @@ return mesh;
 
 bezier patch
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa8-1.png" style="zoom: 60%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa8-1.png"  />
 
 teapot
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa8-2.png" style="zoom: 60%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa8-2.png"  />
 
 ## PA9 - Particle Systems
 
@@ -682,8 +682,8 @@ RingGenerator::RingGenerator(float position_randomness, const Vec3f &velocity, f
 
 hose force particle
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa9-1.png" style="zoom: 80%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa9-1.png" style="zoom:150%;" />
 
 fire
 
-<p align="center"><img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa9-2.png" style="zoom: 80%;text-align: left"/></p>
+<img src="https://raw.githubusercontent.com/LanFear-Li/MIT6.837-QUIZ/main/Appendix/pa9-2.png" style="zoom:150%;" />
