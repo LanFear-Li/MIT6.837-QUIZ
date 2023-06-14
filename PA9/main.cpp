@@ -4,8 +4,8 @@
 
 using namespace std;
 
-#include "glCanvas.h"
-#include "parser.h"
+#include "gl.hpp"
+#include "parser.hpp"
 
 // ====================================================================
 // ====================================================================

@@ -2,13 +2,14 @@
 #define _PA_SYSTEM_H_
 
 #include <cassert>
-#include "vectors.h"
+#include "vectors.hpp"
+#include "generator.hpp"
 
 class Particle;
 
 class ParticleSet;
 
-class Generator;
+struct Generator;
 
 class Integrator;
 
@@ -27,7 +28,7 @@ class System {
 public:
 
     // CONSTRUCTOR & DESTRUCTOR
-    System(Generator *g, Integrator *i, ForceField *f);
+    System(particle_system::Generator *g, Integrator *i, ForceField *f);
 
     ~System();
 
@@ -49,7 +50,7 @@ private:
 
     // REPRESENTATION
     ParticleSet *particles{};
-    Generator *generator{};
+    particle_system::Generator *generator{};
     Integrator *integrator{};
     ForceField *forcefield{};
     float current_time{};

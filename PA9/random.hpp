@@ -24,7 +24,7 @@
 // m = 714025
 //
 
-#include "vectors.h"
+#include "vectors.hpp"
 
 class Random {
 
@@ -42,11 +42,16 @@ public:
     }
 
     // return a random vector with each component from -1 -> 1
-    Vec3f randomVector() {
+    Vec3f random_vector() {
         float x = next() * 2 - 1;
         float y = next() * 2 - 1;
         float z = next() * 2 - 1;
         return {x, y, z};
+    }
+
+    // return a random float from -1 -> 1
+    float random_float() {
+        return next() * 2 - 1;
     }
 
 private:

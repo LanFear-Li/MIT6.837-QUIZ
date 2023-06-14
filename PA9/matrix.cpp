@@ -7,8 +7,8 @@
 #include <cmath>
 #include <cstring>
 
-#include "matrix.h"
-#include "vectors.h"
+#include "matrix.hpp"
+#include "vectors.hpp"
 
 
 // ===================================================================

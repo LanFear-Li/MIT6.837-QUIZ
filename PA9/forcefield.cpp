@@ -1,4 +1,4 @@
-#include "forcefield.h"
+#include "forcefield.hpp"
 
 ForceField::ForceField() = default;
 
@@ -45,3 +45,10 @@ Vec3f VerticalForceField::getAcceleration(const Vec3f &position, float mass, flo
 }
 
 
+WindForceField::WindForceField(const float &magnitude) {
+
+}
+
+Vec3f WindForceField::getAcceleration(const Vec3f &position, float mass, float t) const {
+    return {};
+}

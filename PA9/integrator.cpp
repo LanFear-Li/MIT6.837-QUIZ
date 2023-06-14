@@ -1,4 +1,4 @@
-#include "integrator.h"
+#include "integrator.hpp"
 
 void EulerIntegrator::Update(Particle *particle, ForceField *force_field, float t, float dt) {
     Vec3f acceleration = force_field->getAcceleration(particle->getPosition(), particle->getMass(), t);

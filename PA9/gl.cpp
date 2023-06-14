@@ -2,11 +2,11 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-#include "glCanvas.h"
-#include "parser.h"
-#include "system.h"
-#include "particle.h"
-#include "matrix.h"
+#include "gl.hpp"
+#include "parser.hpp"
+#include "system.hpp"
+#include "particle.hpp"
+#include "matrix.hpp"
 
 // ========================================================
 

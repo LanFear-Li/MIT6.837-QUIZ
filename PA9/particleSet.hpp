@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-#include "particle.h"
+#include "particle.hpp"
 
 // ============================================================
 //

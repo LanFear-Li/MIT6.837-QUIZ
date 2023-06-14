@@ -6,7 +6,7 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-#include "vectors.h"
+#include "vectors.hpp"
 
 class Parser;
 

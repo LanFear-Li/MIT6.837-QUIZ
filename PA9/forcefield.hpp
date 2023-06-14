@@ -1,7 +1,7 @@
 #ifndef _PA_FORCEFIELD_H_
 #define _PA_FORCEFIELD_H_
 
-#include "vectors.h"
+#include "vectors.hpp"
 
 class ForceField {
 public:
@@ -39,6 +39,13 @@ public:
 class VerticalForceField : public ForceField {
 public:
     explicit VerticalForceField(const float &magnitude);
+
+    Vec3f getAcceleration(const Vec3f &position, float mass, float t) const override;
+};
+
+class WindForceField : public ForceField {
+public:
+    explicit WindForceField(const float &magnitude);
 
     Vec3f getAcceleration(const Vec3f &position, float mass, float t) const override;
 };

@@ -2,7 +2,7 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-#include "particle.h"
+#include "particle.hpp"
 
 
 void Particle::increaseAge(float a) {

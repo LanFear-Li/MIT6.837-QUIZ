@@ -1,8 +1,8 @@
 #ifndef _PA_INTEGRATOR_H_
 #define _PA_INTEGRATOR_H_
 
-#include "particle.h"
-#include "forcefield.h"
+#include "particle.hpp"
+#include "forcefield.hpp"
 
 class Integrator {
 public:

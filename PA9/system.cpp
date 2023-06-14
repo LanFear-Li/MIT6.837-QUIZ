@@ -3,16 +3,16 @@
 #include <GL/glut.h>
 
 
-#include "system.h"
-#include "generator.h"
-#include "integrator.h"
-#include "forcefield.h"
-#include "particleSet.h"
-#include "particle.h"
+#include "system.hpp"
+#include "generator.hpp"
+#include "integrator.hpp"
+#include "forcefield.hpp"
+#include "particleSet.hpp"
+#include "particle.hpp"
 
 // ====================================================================
 
-System::System(Generator *g, Integrator *i, ForceField *f) {
+System::System(particle_system::Generator *g, Integrator *i, ForceField *f) {
     assert (g != nullptr);
     assert (i != nullptr);
     assert (f != nullptr);
@@ -38,7 +38,7 @@ void System::Restart() {
     particles = new ParticleSet(100);
 
     // restart the generator (it might have state)
-    generator->Restart();
+    generator->restart();
 
     // reset the main clock
     current_time = 0;
@@ -52,11 +52,11 @@ void System::Update(float dt) {
     }
 
     // generate new particles
-    int num_new = generator->numNewParticles(current_time, dt);
+    int num_new = generator->new_particle_num(current_time, dt);
     for (int i = 0; i < num_new; i++) {
-        Particle *p = generator->Generate(current_time, i);
+        std::unique_ptr<Particle> p = generator->generate(current_time, i);
         assert (p != nullptr);
-        particles->Add(p);
+        particles->Add(p.release());
     }
 
     // cleanup anything that might have died!
@@ -71,7 +71,7 @@ void System::Update(float dt) {
 
 void System::PaintGeometry() const {
     // some generators have polygons
-    generator->Paint();
+    generator->paint();
 }
 
 

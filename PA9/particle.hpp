@@ -1,7 +1,7 @@
 #ifndef _PA_PARTICLE_H_
 #define _PA_PARTICLE_H_
 
-#include "vectors.h"
+#include "vectors.hpp"
 
 // ================================================================
 //

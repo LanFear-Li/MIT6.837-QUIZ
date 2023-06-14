@@ -1,8 +1,8 @@
-#include "parser.h"
-#include "system.h"
-#include "generator.h"
-#include "integrator.h"
-#include "forcefield.h"
+#include "parser.hpp"
+#include "system.hpp"
+#include "generator.hpp"
+#include "integrator.hpp"
+#include "forcefield.hpp"
 #include <cstring>
 
 // ====================================================================
@@ -45,7 +45,7 @@ System *Parser::ParseSystem() {
     char token[MAX_PARSER_TOKEN_LENGTH];
     getToken(token);
     assert (!strcmp(token, "system"));
-    Generator *generator = ParseGenerator();
+    particle_system::Generator *generator = ParseGenerator();
     Integrator *integrator = ParseIntegrator();
     ForceField *forcefield = ParseForceField();
     return new System(generator, integrator, forcefield);
@@ -55,7 +55,7 @@ System *Parser::ParseSystem() {
 // ====================================================================
 // ====================================================================
 
-Generator *Parser::ParseGenerator() {
+particle_system::Generator *Parser::ParseGenerator() {
     // read the generator type
     char type[MAX_PARSER_TOKEN_LENGTH];
     getToken(type);
@@ -116,12 +116,12 @@ Generator *Parser::ParseGenerator() {
     }
 
     // create the appropriate generator
-    Generator *answer = nullptr;
+    particle_system::Generator *answer = nullptr;
     if (!strcmp(type, "hose_generator")) {
-        answer = new HoseGenerator(position, position_randomness,
+        answer = new particle_system::Hose_Generator(position, position_randomness,
                                    velocity, velocity_randomness);
     } else if (!strcmp(type, "ring_generator")) {
-        answer = new RingGenerator(position_randomness, velocity, velocity_randomness);
+        answer = new particle_system::Ring_Generator(position_randomness, velocity, velocity_randomness);
     } else {
         printf("WARNING:  unknown generator type '%s'\n", type);
         printf("WARNING:  unknown generator type '%s'\n", type);
@@ -129,9 +129,9 @@ Generator *Parser::ParseGenerator() {
 
     // set the common generator parameters
     assert (answer != nullptr);
-    answer->SetColors(color, dead_color, color_randomness);
-    answer->SetMass(mass, mass_randomness);
-    answer->SetLifespan(lifespan, lifespan_randomness, desired_num_particles);
+    answer->set_colors(color, dead_color, color_randomness);
+    answer->set_mass(mass, mass_randomness);
+    answer->set_lifespan(lifespan, lifespan_randomness, desired_num_particles);
 
     return answer;
 }

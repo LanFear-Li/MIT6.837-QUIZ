@@ -2,13 +2,14 @@
 #define _PA_PARSER_H_
 
 #include <cassert>
-#include "vectors.h"
+#include "vectors.hpp"
+#include "generator.hpp"
 
 #define MAX_PARSER_TOKEN_LENGTH 100
 
 class System;
 
-class Generator;
+struct Generator;
 
 class Integrator;
 
@@ -43,7 +44,7 @@ private:
     // HELPER FUNCTIONS
     System *ParseSystem();
 
-    Generator *ParseGenerator();
+    particle_system::Generator *ParseGenerator();
 
     Integrator *ParseIntegrator();
 

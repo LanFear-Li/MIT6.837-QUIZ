@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(PA9)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 add_executable(particle_system
         main.cpp
 
         matrix.cpp
-        glCanvas.cpp
+        gl.cpp
         system.cpp
         particle.cpp
         parser.cpp
@@ -16,7 +16,7 @@ add_executable(particle_system
         integrator.cpp
         generator.cpp
 
-        random.h)
+        random.hpp)
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
