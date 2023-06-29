@@ -1,10 +1,10 @@
 #pragma once
-#include <memory>
-#include <cmath>
 #include "vectors.hpp"
 #include "particle.hpp"
 #include "random.hpp"
 #include "gl.hpp"
+#include <memory>
+#include <cmath>
 
 namespace particle_system
 {
@@ -13,7 +13,7 @@ namespace particle_system
     template <class T, class R = float>
     struct Stochastic final
     {
-        T value;
+        T value{};
 
         Stochastic(T source_value = {}, R randomness = {})
             : source_value{source_value}
@@ -23,8 +23,7 @@ namespace particle_system
         template<class Gen>
         auto randomize_vector(Gen&& gen) -> void
         {
-            if (typeid(T) == typeid(Vec3f))
-            {
+            if (typeid(T) == typeid(Vec3f)) {
                 value = source_value + value_randomness * gen.random_vector();
             }
         }
@@ -32,8 +31,7 @@ namespace particle_system
         template<class Gen>
         auto randomize_float(Gen&& gen) -> void
         {
-            if (typeid(T) == typeid(float))
-            {
+            if (typeid(T) == typeid(float)) {
                 value = source_value + value_randomness * gen.random_float();
             }
         }
@@ -45,7 +43,7 @@ namespace particle_system
 
     struct Generator
     {
-        virtual auto set_colors(const Vec3f& c, const Vec3f& dead_c, float c_randomness) -> void = 0;
+        virtual auto set_colors(Vec3f const& c, Vec3f const& dead_c, float c_randomness) -> void = 0;
         virtual auto set_lifespan(float ls, float ls_randomness, int desired_num) -> void = 0;
         virtual auto set_mass(float m, float m_randomness) -> void = 0;
 
@@ -60,9 +58,9 @@ namespace particle_system
 
     struct Hose_Generator final: Generator
     {
-        Hose_Generator(const Vec3f& p, float p_randomness, const Vec3f& v, float v_randomness);
+        Hose_Generator(Vec3f const& p, float p_randomness, Vec3f const& v, float v_randomness);
 
-        auto set_colors(const Vec3f& c, const Vec3f& dead_c, float c_randomness) -> void override;
+        auto set_colors(Vec3f const& c, Vec3f const& dead_c, float c_randomness) -> void override;
         auto set_lifespan(float ls, float ls_randomness, int desired_num) -> void override;
         auto set_mass(float m, float m_randomness) -> void override;
 
@@ -89,9 +87,9 @@ namespace particle_system
 
     struct Ring_Generator final: Generator
     {
-        Ring_Generator(float p_randomness, const Vec3f& v, float v_randomness);
+        Ring_Generator(float p_randomness, Vec3f const& v, float v_randomness);
 
-        auto set_colors(const Vec3f& c, const Vec3f& dead_c, float c_randomness) -> void override;
+        auto set_colors(Vec3f const& c, Vec3f const& dead_c, float c_randomness) -> void override;
         auto set_lifespan(float ls, float ls_randomness, int desired_num) -> void override;
         auto set_mass(float m, float m_randomness) -> void override;
 

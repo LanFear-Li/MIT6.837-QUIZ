@@ -2,13 +2,13 @@
 
 namespace particle_system
 {
-    Hose_Generator::Hose_Generator(const Vec3f& p, float p_randomness, const Vec3f& v, float v_randomness)
+    Hose_Generator::Hose_Generator(Vec3f const& p, float p_randomness, Vec3f const& v, float v_randomness)
         : position{p, p_randomness}
         , velocity{v, v_randomness}
         , random_generator{Random{}}
     {}
 
-    auto Hose_Generator::set_colors(const Vec3f& c, const Vec3f& dead_c, float c_randomness) -> void
+    auto Hose_Generator::set_colors(Vec3f const& c, Vec3f const& dead_c, float c_randomness) -> void
     {
         color = Stochastic{c, c_randomness};
         dead_color = dead_c;
@@ -55,13 +55,13 @@ namespace particle_system
         // do nothing in hose generator
     }
 
-    Ring_Generator::Ring_Generator(float p_randomness, const Vec3f& v, float v_randomness)
+    Ring_Generator::Ring_Generator(float p_randomness, Vec3f const& v, float v_randomness)
         : position_randomness{p_randomness}
         , velocity{v, v_randomness}
         , random_generator{Random{}}
     {}
 
-    auto Ring_Generator::set_colors(const Vec3f& c, const Vec3f& dead_c, float c_randomness) -> void
+    auto Ring_Generator::set_colors(Vec3f const& c, Vec3f const& dead_c, float c_randomness) -> void
     {
         color = Stochastic{c, c_randomness};
         dead_color = dead_c;
